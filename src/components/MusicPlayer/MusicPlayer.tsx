@@ -1,9 +1,13 @@
-import { Play, Pause, SkipBack, SkipForward, SpeakerSimpleHigh, SpeakerSimpleX, Heart, Shuffle, Repeat } from "phosphor-react";
+import { Play, Pause, SkipBack, SkipForward, SpeakerSimpleHigh, SpeakerSimpleX, Shuffle, Repeat } from "phosphor-react";
 import ProgressBar from "../ProgressBar/progressBar"
 import Playlist from "../Playlist/playlist";
 import { tracks } from "../../data/tracks"
 import { useState, useRef, useEffect } from "react";
-// import { track } from "motion/react-client";
+import Nailong from "../../assets/nailong.png";
+import {
+  ScrollVelocityContainer,
+  ScrollVelocityRow,
+} from "@/components/magicui/scroll-based-velocity";
 
 
 const MusicPlayer = () => {
@@ -15,7 +19,6 @@ const MusicPlayer = () => {
 
   const [repeatMode, setRepeatMode] = useState("none");
   const [isShuffled, setIsShuffled] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
 
   const [volume] = useState(0.8); // Remove setVolume to fix TS6133
   const [isMuted, setIsMuted] = useState(false);
@@ -195,7 +198,7 @@ const MusicPlayer = () => {
               </div>
 
               {/* Track & Controls */}
-              <div className="flex-1 flex flex-col justify-between">
+              <div className="flex-1 flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left ">
                   <h2 className="text-2xl font-bold mb-2">
                     {currentTrack.title}
@@ -203,20 +206,31 @@ const MusicPlayer = () => {
                   <p className="text-muted-foreground"> {currentTrack.artist} </p>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
+                  {/* <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
                     <button className={`p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 border 
                     {isLiked ? "bg-pink-500 shadow-lg border-pink-500" : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"}`}
                     onClick={() => setIsLiked(!isLiked)}>
                       <Heart className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" weight={isLiked ? "fill" : "regular"} />
                     </button>
                     <button className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-secondary rounded-full text-secondary-foreground font-semibold hover:shadow-lg hover:bg-secondary/80 transition-all duration-300 cursor-pointer text-base sm:text-lg"> Add to Playlist</button>
+                  </div> */}
+
+                  <div className="rounded-2xl w-full overflow-hidden p-5 ">
+                    <ScrollVelocityContainer className="w-full max-w-full text-4xl md:text-2xl lg:text-4xl font-bold whitespace-nowrap">
+                      <ScrollVelocityRow baseVelocity={15} direction={1}>
+                        {currentTrack.title}&nbsp;&nbsp;&nbsp;
+                      </ScrollVelocityRow>
+                      <ScrollVelocityRow baseVelocity={15} direction={-1}>
+                        {currentTrack.artist}&nbsp;&nbsp;&nbsp;
+                      </ScrollVelocityRow>
+                    </ScrollVelocityContainer>
                   </div>
                 </div>
                 {/* Progress Section */}
                 <div className="mt-8">
-                  <ProgressBar 
-                    currentTime={currentTime} 
-                    duration={ duration || currentTrack.duration } 
+                  <ProgressBar
+                    currentTime={currentTime}
+                    duration={duration || currentTrack.duration}
                     onSeek={handleSeek} />
                   <div className="flex justify-between text-sm text-muted-foreground mt-2">
                     <span>{formatTime(currentTime)}</span>
@@ -267,9 +281,9 @@ const MusicPlayer = () => {
 
           {/* Playlist Side Bar */}
           <div className="backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 mx-6">
               <h3 className="text-lg font-semibold">Playlist</h3>
-              {/* <p className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">Track Length</p> */}
+              <img src={Nailong} alt="" className="w-10 h-10" />
             </div>
             <div className="space-y-3 h-96 overflow-y-auto overflow-x-hidden">
               {tracks.map((track, index) => (

@@ -1,9 +1,14 @@
+// Album Cover Images
 import AboutYou from "../assets/Album/AboutYou.png"
 import Blue from "../assets/Album/Blue.png"
 import Multo from "../assets/Album/Multo.png"
+import Sikulo from "../assets/Album/Sikulo.png"
+
+// MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
 import BlueAudio from "../assets/Audio/Blue.mp3"
 import MultoAudio from "../assets/Audio/Multo.mp3"
+import SikuloAudio from "../assets/Audio/Sikulo.mp3"
 export const tracks = [
   {
     id: 1,
@@ -31,5 +36,15 @@ export const tracks = [
     duration: 240,
     coverUrl: Multo,
     audioUrl: MultoAudio
+  },
+  {
+    id: 4,
+    title: "Sikulo",
+    artist: " Maki, Angela Ken, Nhiko",
+    album: "Album 4",
+    duration: 315,
+    coverUrl: Sikulo,
+    audioUrl: SikuloAudio
   }
+  
 ];
