@@ -7,7 +7,7 @@ interface VolumeControlProps {
 
 const VolumeControl = ({ volume, onVolumeChange }: VolumeControlProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [hoverTime, setHoverTime] = useState(false);
+  // Removed unused hoverTime state
   const sliderRef = useRef<HTMLDivElement>(null);
 
   // Handle global mouse up/move for better drag experience
@@ -63,8 +63,7 @@ const VolumeControl = ({ volume, onVolumeChange }: VolumeControlProps) => {
         className="relative w-28 h-3 bg-gray-300 dark:bg-gray-800 rounded-full cursor-pointer group overflow-hidden"
         ref={sliderRef}
         onMouseDown={handleMouseDown}
-        onMouseEnter={() => setHoverTime(true)}
-        onMouseLeave={() => setHoverTime(false)}
+  // Removed unused hoverTime handlers
         tabIndex={0}
         role="slider"
         aria-valuenow={Math.round(volume * 100)}
