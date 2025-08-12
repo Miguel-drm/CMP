@@ -6,8 +6,8 @@ function App() {
 
   return (
     <>
+    <div className="relative min-h-[calc(100dvh-78px)] w-full">
       <Nav />
-      <div className="max-h-screen shadow-md">
         <MusicPlayer/>
         <DotPattern className="opacity-30" />
       </div>
