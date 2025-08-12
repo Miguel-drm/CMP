@@ -17,7 +17,7 @@ const MusicPlayer = () => {
   const [isShuffled, setIsShuffled] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
-  const [volume, setVolume] = useState(0.8);
+  const [volume] = useState(0.8); // Remove setVolume to fix TS6133
   const [isMuted, setIsMuted] = useState(false);
 
   const currentTrack = tracks[currentTrackIndex];
@@ -205,7 +205,7 @@ const MusicPlayer = () => {
                   {/* Action Buttons */}
                   <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
                     <button className={`p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 border 
-                    {isLiked ? "bg-pink-500 shadow-lg text-white border-pink-500" : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"}`}
+                    {isLiked ? "bg-pink-500 shadow-lg border-pink-500" : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"}`}
                     onClick={() => setIsLiked(!isLiked)}>
                       <Heart className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" weight={isLiked ? "fill" : "regular"} />
                     </button>

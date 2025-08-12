@@ -31,11 +31,6 @@ const VolumeControl = ({ volume, onVolumeChange }: VolumeControlProps) => {
     };
   }, [isDragging]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    handleVolumeChange(e);
-  };
-
   const handleVolumeChange = (e: MouseEvent | React.MouseEvent) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
@@ -45,22 +40,9 @@ const VolumeControl = ({ volume, onVolumeChange }: VolumeControlProps) => {
     onVolumeChange(percentage);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      const newVolume = Math.max(0, volume - 0.05);
-      onVolumeChange(newVolume);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      const newVolume = Math.min(1, volume + 0.05);
-      onVolumeChange(newVolume);
-    }
-  };
-
+  // Only show mute/unmute icon, no slider or percentage
   return (
     <div className="flex items-center gap-2 select-none">
-      {/* Volume Icon Only */}
-      {/* Only show mute/unmute icon, remove any old icon usage */}
       {volume === 0 ? (
         <SpeakerSimpleX size={24} />
       ) : (
