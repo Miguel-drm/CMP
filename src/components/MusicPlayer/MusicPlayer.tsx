@@ -8,7 +8,6 @@ import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
 } from "@/components/magicui/scroll-based-velocity";
-import { WarpBackground } from "../magicui/warp-background";
 
 
 const MusicPlayer = () => {
