@@ -1,6 +1,5 @@
 import { Play, Pause, SkipBack, SkipForward, SpeakerSimpleHigh, SpeakerSimpleX, Heart, Shuffle, Repeat } from "phosphor-react";
 import ProgressBar from "../ProgressBar/progressBar"
-import VolumeControl from "../VolumeControl/volumeControl";
 import Playlist from "../Playlist/playlist";
 import { tracks } from "../../data/tracks"
 import { useState, useRef, useEffect } from "react";
