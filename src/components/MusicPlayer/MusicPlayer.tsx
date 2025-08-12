@@ -12,7 +12,7 @@ import {
 
 const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(1);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);

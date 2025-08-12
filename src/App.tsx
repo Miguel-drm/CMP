@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { gsap } from "gsap";
 import Nav from "./components/nav/Nav";
-import { DotPattern } from "./components/magicui/dot-pattern";
 import MusicPlayer from "./components/MusicPlayer/MusicPlayer";
 import { LoaderOne } from "./components/ui/loader";
+import { BackgroundBeams } from "./components/ui/background-beams";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -11,7 +11,7 @@ function App() {
   const mainContentRef = useRef(null);
   const navRef = useRef(null);
   const musicRef = useRef(null);
-  const dotsRef = useRef(null);
+  const bgBeams = useRef(null);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -40,7 +40,7 @@ function App() {
       )
         .from(navRef.current, { y: -30, opacity: 0, duration: 0.6 }, "-=0.3")
         .from(musicRef.current, { y: 30, opacity: 0, duration: 0.6 }, "-=0.2")
-        .from(dotsRef.current, { scale: 0.8, opacity: 0, duration: 0.6 }, "-=0.4");
+        .from(bgBeams.current, { scale: 0.8, opacity: 0, duration: 0.6 }, "-=0.4");
     }
   }, [loading]);
 
@@ -48,9 +48,8 @@ function App() {
     <>
       {loading ? (
         <div
-          className={`min-h-dvh bg-black flex items-center justify-center transition-opacity duration-500 ${
-            fadeOut ? "opacity-0" : "opacity-100"
-          }`}
+          className={`min-h-dvh bg-black flex items-center justify-center transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"
+            }`}
         >
           <LoaderOne />
         </div>
@@ -65,12 +64,13 @@ function App() {
           <div ref={musicRef}>
             <MusicPlayer />
           </div>
-          <div ref={dotsRef}>
-            <DotPattern className="opacity-30" />
-          </div>
         </div>
       )}
+      <div>
+        <BackgroundBeams className="pointer-events-none opacity-50"/>
+      </div>
     </>
+    
   );
 }
 
