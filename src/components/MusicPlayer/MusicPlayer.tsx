@@ -36,7 +36,7 @@ const MusicPlayer = () => {
     const updateDuration = () => {
       setDuration(audio.duration);
     }
-    
+
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleTrackEnd);
@@ -59,7 +59,7 @@ const MusicPlayer = () => {
 
     setIsPlaying(!isPlaying);
   };
-   
+
   const getRandomTrackIndex = (excludeIndex: number) => {
     let idx = Math.floor(Math.random() * tracks.length);
     // Avoid picking the same track
@@ -111,7 +111,7 @@ const MusicPlayer = () => {
   };
 
   const handleSeek = (time: number) => {
-    if(audioRef.current) {
+    if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
@@ -176,7 +176,7 @@ const MusicPlayer = () => {
   };
 
   useEffect(() => {
-    if (audioRef.current){
+    if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
@@ -191,20 +191,26 @@ const MusicPlayer = () => {
           <div className="lg:col-span-2 backdrop-blur-xl rounded-3xl p-8 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
             {/* Album */}
             <div className="flex flex-col md:flex-row gap-8 ">
-              <div className="flex-shrink-0">
-                <div className="w-64 h-64 mx-auto md:mx-0 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 bg-muted">
-                  {/* Image */}
-                  <img src={currentTrack.coverUrl} className="w-full h-full object-cover" alt={currentTrack.album} />
-                </div>
-              </div>
+
 
               {/* Track & Controls */}
-              <div className="flex-1 flex flex-col justify-between overflow-hidden">
-                <div className="text-center md:text-left ">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {currentTrack.title}
-                  </h2>
-                  <p className="text-muted-foreground"> {currentTrack.artist} </p>
+              <div className="flex flex-col justify-between overflow-hidden">
+                <div className="text-center md:text-left">
+                  <div>
+                    <div className="flex items-center justify-between gap-10">
+                      <div className="w-64 h-64 mx-auto md:mx-0 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 bg-muted">
+                        {/* Image */}
+                        <img src={currentTrack.coverUrl} className="w-full h-full object-cover" alt={currentTrack.album} />
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <h2 className="text-5xl font-bold mb-2">
+                          {currentTrack.title}
+                        </h2>
+                        <p className="text-muted-foreground"> {currentTrack.artist} </p>
+                      </div>
+                    </div>
+                  </div>
+
 
                   {/* Action Buttons */}
                   {/* <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
@@ -216,7 +222,9 @@ const MusicPlayer = () => {
                     <button className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-secondary rounded-full text-secondary-foreground font-semibold hover:shadow-lg hover:bg-secondary/80 transition-all duration-300 cursor-pointer text-base sm:text-lg"> Add to Playlist</button>
                   </div> */}
 
-                  <div className="rounded-2xl w-full overflow-hidden py-5">
+
+
+                  <div className="rounded-2xl w-full overflow-hidden my-5">
                     <div className="rounded-2xl w-full overflow-hidden">
                       <ScrollVelocityContainer className="w-full max-w-full text-3xl md:text-4xl lg:text-5xl font-bold whitespace-nowrap" paused={!isPlaying}>
                         <ScrollVelocityRow baseVelocity={20} direction={1}>
@@ -241,14 +249,14 @@ const MusicPlayer = () => {
                   </div>
 
                   {/* Controls */}
-                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-2 md:gap-3 mt-6 w-full min-w-0 mx-auto">
+                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-2 md:gap-3 mt-6 w-full min-w-0 mx-auto pe-5">
                     <button className={`p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary text-secondary-foreground border
                     ${isShuffled ? "bg-primary text-primary-foreground border-primary shadow-lg" : "hover:bg-secondary/80 border-secondary"}`}
-                    onClick={() => setIsShuffled(!isShuffled)}>
+                      onClick={() => setIsShuffled(!isShuffled)}>
                       <Shuffle className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
                     </button>
                     <button className="p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110 text-secondary-foreground">
-                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handlePrevious}/>
+                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handlePrevious} />
                     </button>
                     <button className="p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground hover:scale-110"
                       onClick={handlePlayPause}>
@@ -283,30 +291,30 @@ const MusicPlayer = () => {
           </div>
 
           {/* Playlist Side Bar */}
-          <WarpBackground perspective={100} className="lg:col-span-1">
-            <div className="backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
+          {/* <WarpBackground perspective={100} className="lg:col-span-1"> */}
+          <div className="relative backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
               <h3 className="text-lg font-semibold">Playlist</h3>
               <img src={Nailong} alt="" className="w-10 h-10" />
             </div>
-            <div className="space-y-3 h-96 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-muted-foreground/30 scrollbar-thumb-primary/40 dark:scrollbar-thumb-muted-foreground/60 dark:scrollbar-thumb-primary/60 scrollbar-track-transparent">
+            <div className="space-y-3 h-128 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-muted-foreground/30 scrollbar-thumb-primary/40 dark:scrollbar-thumb-muted-foreground/60 dark:scrollbar-thumb-primary/60 scrollbar-track-transparent">
               {tracks.map((track, index) => (
-                <Playlist 
-                key={index} 
-                track={track} 
-                isActive={index === currentTrackIndex} 
-                onClick={() => {
-                  setCurrentTrackIndex(index);
-                  setIsPlaying(true);
-                  setTimeout(() => {
-                    audioRef.current?.play();
-                  }, 0);
-                }} 
-              />
+                <Playlist
+                  key={index}
+                  track={track}
+                  isActive={index === currentTrackIndex}
+                  onClick={() => {
+                    setCurrentTrackIndex(index);
+                    setIsPlaying(true);
+                    setTimeout(() => {
+                      audioRef.current?.play();
+                    }, 0);
+                  }}
+                />
               ))}
             </div>
           </div>
-          </WarpBackground>
+          {/* </WarpBackground> */}
         </div>
       </div>
     </div>
