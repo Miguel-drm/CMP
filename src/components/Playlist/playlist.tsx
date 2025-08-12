@@ -41,6 +41,7 @@ const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
             <div className='flex items-center gap-3 text-xs text-muted-foreground'>
                 {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}
             </div>
+            
         </div>
     )
 }

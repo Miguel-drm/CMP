@@ -8,6 +8,7 @@ import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
 } from "@/components/magicui/scroll-based-velocity";
+import { WarpBackground } from "../magicui/warp-background";
 
 
 const MusicPlayer = () => {
@@ -247,7 +248,7 @@ const MusicPlayer = () => {
                       <Shuffle className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
                     </button>
                     <button className="p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110 text-secondary-foreground">
-                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handlePrevious} />
+                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handlePrevious}/>
                     </button>
                     <button className="p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground hover:scale-110"
                       onClick={handlePlayPause}>
@@ -282,7 +283,8 @@ const MusicPlayer = () => {
           </div>
 
           {/* Playlist Side Bar */}
-          <div className="backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
+          <WarpBackground>
+            <div className="backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
               <h3 className="text-lg font-semibold">Playlist</h3>
               <img src={Nailong} alt="" className="w-10 h-10" />
@@ -304,6 +306,7 @@ const MusicPlayer = () => {
               ))}
             </div>
           </div>
+          </WarpBackground>
         </div>
       </div>
     </div>

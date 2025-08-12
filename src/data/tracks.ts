@@ -65,7 +65,7 @@ export const tracks = [
     title: "New Slang",
     artist: "The Shins",
     album: "Album 6",
-    duration: 180,
+    duration: 232,
     coverUrl: NewSlang,
     audioUrl: New_Slang
   }
