@@ -4,6 +4,7 @@ import Blue from "../assets/Album/Blue.png"
 import Multo from "../assets/Album/Multo.png"
 import Sikulo from "../assets/Album/Sikulo.png"
 import IkawPatutunguhan from "../assets/Album/Ikaw Patutunguhan.png"
+import NewSlang from "../assets/Album/New Slang.png"
 
 // MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
@@ -11,6 +12,7 @@ import BlueAudio from "../assets/Audio/Blue.mp3"
 import MultoAudio from "../assets/Audio/Multo.mp3"
 import SikuloAudio from "../assets/Audio/Sikulo.mp3"
 import IkawPatutunguhanAudio from "../assets/Audio/Ikaw Patutunguhan.mp3"
+import New_Slang from "../assets/Audio/New Slang.mp3"
 
 export const tracks = [
   {
@@ -57,5 +59,15 @@ export const tracks = [
     duration: 341,
     coverUrl: IkawPatutunguhan,
     audioUrl: IkawPatutunguhanAudio
+  },
+  {
+    id: 6,
+    title: "New Slang",
+    artist: "The Shins",
+    album: "Album 6",
+    duration: 180,
+    coverUrl: NewSlang,
+    audioUrl: New_Slang
   }
+
 ];
