@@ -1,4 +1,4 @@
-import { Play, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, Repeat, Pause } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, SpeakerSimpleHigh, SpeakerSimpleX, Heart, Shuffle, Repeat } from "phosphor-react";
 import ProgressBar from "../ProgressBar/progressBar"
 import VolumeControl from "../VolumeControl/volumeControl";
 import Playlist from "../Playlist/playlist";
@@ -206,9 +206,9 @@ const MusicPlayer = () => {
                   {/* Action Buttons */}
                   <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
                     <button className={`p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 border 
-                    ${isLiked ? "bg-pink-500 shadow-lg text-white border-pink-500" : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"}`}
+                    {isLiked ? "bg-pink-500 shadow-lg text-white border-pink-500" : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"}`}
                     onClick={() => setIsLiked(!isLiked)}>
-                      <Heart className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill={isLiked ? "currentColor" : "none"}/>
+                      <Heart className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" weight={isLiked ? "fill" : "regular"} />
                     </button>
                     <button className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-secondary rounded-full text-secondary-foreground font-semibold hover:shadow-lg hover:bg-secondary/80 transition-all duration-300 cursor-pointer text-base sm:text-lg"> Add to Playlist</button>
                   </div>
@@ -229,37 +229,36 @@ const MusicPlayer = () => {
                     <button className={`p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary text-secondary-foreground border
                     ${isShuffled ? "bg-primary text-primary-foreground border-primary shadow-lg" : "hover:bg-secondary/80 border-secondary"}`}
                     onClick={() => setIsShuffled(!isShuffled)}>
-                      <Shuffle className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10" />
+                      <Shuffle className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
                     </button>
                     <button className="p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110 text-secondary-foreground">
-                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10" onClick={handlePrevious} />
+                      <SkipBack className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handlePrevious} />
                     </button>
                     <button className="p-2 sm:p-3 md:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground hover:scale-110"
                       onClick={handlePlayPause}>
-                      {isPlaying ? <Pause className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" /> : <Play className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />}
+                      {isPlaying
+                        ? <Pause className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16" />
+                        : <Play className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16" />}
                     </button>
                     <button className="p-1 sm:p-1 md:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110 text-secondary-foreground">
-                      <SkipForward className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10" onClick={handleNext} />
+                      <SkipForward className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" onClick={handleNext} />
                     </button>
                     <button className="relative p-1 sm:p-2 md:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110 text-secondary-foreground"
                       onClick={toggleRepeat}>
-                      <Repeat className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10"/>
+                      <Repeat className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
                       {repeatMode === "one" && (<span className="absolute -top-1 -right-1 w-3 sm:w-4 md:w-5 h-3 sm:h-4 md:h-5 bg-primary rounded-full flex items-center justify-center font-bold text-xs text-primary-foreground">
                         1
                       </span>)}
                     </button>
 
-                    {/* Volume Controls */}
-                    <div className="flex items-center gap-1 sm:gap-2 md:gap-3 min-w-0 max-w-full flex-1 justify-center">
+                    {/* Volume Controls: Show mute/unmute button with icon and handler */}
+                    <div className="flex items-center gap-1 sm:gap-2 md:gap-3 min-w-0 max-w-full">
                       <button className="text-foreground hover:scale-110 transition-all duration-300 p-1 sm:p-2"
-                      onClick={() => setIsMuted(!isMuted)}>
-                        {isMuted ? <VolumeX className="w-5 h-5 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10" onClick={() => setIsMuted(false)} /> : <Volume2 className="w-5 h-5 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10" onClick={() => setIsMuted(true)} />}
+                        onClick={() => setIsMuted(!isMuted)}>
+                        {isMuted
+                          ? <SpeakerSimpleX className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
+                          : <SpeakerSimpleHigh className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />}
                       </button>
-                      <div className="flex-1 min-w-0 max-w-[80px] sm:max-w-[100px] md:max-w-[140px]">
-                        <VolumeControl 
-                          volume={volume} 
-                          onVolumeChange={setVolume} />
-                      </div>
                     </div>
                   </div>
                 </div>
