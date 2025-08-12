@@ -283,7 +283,7 @@ const MusicPlayer = () => {
           </div>
 
           {/* Playlist Side Bar */}
-          <WarpBackground>
+          <WarpBackground perspective={100} className="lg:col-span-1">
             <div className="backdrop-blur-xl rounded-3xl p-6 shadow-2xl bg-card text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
               <h3 className="text-lg font-semibold">Playlist</h3>
