@@ -182,7 +182,7 @@ const MusicPlayer = () => {
 
 
   return (
-  <div className="min-h-[calc(100dvh-78px)] flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8">
+    <div className="min-h-[calc(100dvh-78px)] flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8">
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" />
       <div className="w-full max-w-[1280px] p-2 sm:p-4 md:p-6 lg:p-8">
         {/* Music Player Card */}
@@ -215,19 +215,21 @@ const MusicPlayer = () => {
                     <button className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-secondary rounded-full text-secondary-foreground font-semibold hover:shadow-lg hover:bg-secondary/80 transition-all duration-300 cursor-pointer text-base sm:text-lg"> Add to Playlist</button>
                   </div> */}
 
-                  <div className="rounded-2xl w-full overflow-hidden p-5 ">
-                    <ScrollVelocityContainer className="w-full max-w-full text-4xl md:text-2xl lg:text-4xl font-bold whitespace-nowrap">
-                      <ScrollVelocityRow baseVelocity={15} direction={1}>
-                        {currentTrack.title}&nbsp;&nbsp;&nbsp;
-                      </ScrollVelocityRow>
-                      <ScrollVelocityRow baseVelocity={15} direction={-1}>
-                        {currentTrack.artist}&nbsp;&nbsp;&nbsp;
-                      </ScrollVelocityRow>
-                    </ScrollVelocityContainer>
+                  <div className="rounded-2xl w-full overflow-hidden py-5">
+                    <div className="rounded-2xl w-full overflow-hidden">
+                      <ScrollVelocityContainer className="w-full max-w-full text-3xl md:text-4xl lg:text-5xl font-bold whitespace-nowrap" paused={!isPlaying}>
+                        <ScrollVelocityRow baseVelocity={20} direction={1}>
+                          {currentTrack.title}&nbsp;
+                        </ScrollVelocityRow>
+                        <ScrollVelocityRow baseVelocity={20} direction={-1}>
+                          {currentTrack.artist}&nbsp;
+                        </ScrollVelocityRow>
+                      </ScrollVelocityContainer>
+                    </div>
                   </div>
                 </div>
                 {/* Progress Section */}
-                <div className="mt-8">
+                <div className="mt-5">
                   <ProgressBar
                     currentTime={currentTime}
                     duration={duration || currentTrack.duration}
@@ -285,7 +287,7 @@ const MusicPlayer = () => {
               <h3 className="text-lg font-semibold">Playlist</h3>
               <img src={Nailong} alt="" className="w-10 h-10" />
             </div>
-            <div className="space-y-3 h-96 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-3 h-96 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-muted-foreground/30 scrollbar-thumb-primary/40 dark:scrollbar-thumb-muted-foreground/60 dark:scrollbar-thumb-primary/60 scrollbar-track-transparent">
               {tracks.map((track, index) => (
                 <Playlist 
                 key={index} 
@@ -305,7 +307,7 @@ const MusicPlayer = () => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default MusicPlayer

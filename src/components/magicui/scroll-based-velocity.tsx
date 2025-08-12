@@ -18,6 +18,7 @@ interface ScrollVelocityRowProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   baseVelocity?: number;
   direction?: 1 | -1;
+  paused?: boolean;
 }
 
 export const wrap = (min: number, max: number, v: number) => {
@@ -32,8 +33,9 @@ const ScrollVelocityContext = React.createContext<MotionValue<number> | null>(
 export function ScrollVelocityContainer({
   children,
   className,
+  paused = false,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & { paused?: boolean }) {
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
   const smoothVelocity = useSpring(scrollVelocity, {
@@ -49,7 +51,16 @@ export function ScrollVelocityContainer({
   return (
     <ScrollVelocityContext.Provider value={velocityFactor}>
       <div className={cn("relative w-full", className)} {...props}>
-        {children}
+        {React.Children.map(children, child => {
+          if (
+            React.isValidElement(child) &&
+            (child.type as any)?.name === "ScrollVelocityRow"
+          ) {
+            // Only add 'paused' if the child props type matches ScrollVelocityRowProps
+            return React.cloneElement(child as React.ReactElement<any>, { paused });
+          }
+          return child;
+        })}
       </div>
     </ScrollVelocityContext.Provider>
   );
@@ -75,6 +86,7 @@ function ScrollVelocityRowImpl({
   direction = 1,
   className,
   velocityFactor,
+  paused = false,
   ...props
 }: ScrollVelocityRowImplProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,6 +156,7 @@ function ScrollVelocityRowImpl({
   });
 
   useAnimationFrame((_, delta) => {
+    if (paused) return;
     if (!isInViewRef.current || !isPageVisibleRef.current) return;
     const dt = delta / 1000;
     const vf = velocityFactor.get();

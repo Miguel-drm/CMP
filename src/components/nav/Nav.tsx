@@ -4,7 +4,7 @@ const Nav = () => {
   return (
     <>
       <div className="flex items-center justify-around p-[12px] text-foreground transition-colors duration-300 inset-0 z-1000">
-        <WordRotate words={["Caelven", "Music", "Playlist"]} className="text-4xl font-bold" />
+        <WordRotate words={["Caelven", "Music", "Playlist"]} className="text-2xl font-bold md:text-3xl lg:text-5xl" />
         <AnimatedThemeToggler className="text-4xl font-bold" />
       </div>
     </>

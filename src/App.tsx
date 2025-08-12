@@ -6,9 +6,9 @@ function App() {
 
   return (
     <>
-    <div className="relative min-h-[calc(100dvh-78px)] w-full">
-      <Nav />
-        <MusicPlayer/>
+      <div className="relative min-h-[calc(100dvh-78px)] w-full">
+        <Nav />
+        <MusicPlayer />
         <DotPattern className="opacity-30" />
       </div>
     </>
