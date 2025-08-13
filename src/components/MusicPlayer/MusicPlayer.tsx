@@ -203,7 +203,7 @@ const MusicPlayer = () => {
                 <video
                   ref={videoRef}
                   key={currentTrack.videoUrl}
-                  className="absolute inset-0 w-full h-full object-cover opacity-80 "
+                  className="absolute inset-0 w-full h-full object-cover opacity-80 scale-130 blur-[5px]"
                   src={currentTrack.videoUrl}
                   autoPlay
                   muted
