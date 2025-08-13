@@ -20,11 +20,6 @@ import Let_Down from "../assets/Audio/Let Down.mp3"
 import ILYSB from "../assets/Audio/ILYSB.mp3"
 import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
 
-// MP4 Video
-import BacktoFriends from "../assets/Video/Back to Friends.mp4"
-import Multo_video from "../assets/Video/Multo_Video.mp4"
-import About_You from "../assets/Video/AboutYou.mp4"
-
 export const tracks = [
   {
     id: 1,
@@ -33,8 +28,7 @@ export const tracks = [
     album: "Album 1",
     duration: 326,
     coverUrl: AboutYou,
-    audioUrl: AboutYouAudio,
-    videoUrl: About_You
+    audioUrl: AboutYouAudio
   },
   {
     id: 2,
@@ -52,8 +46,7 @@ export const tracks = [
     album: "Album 3",
     duration: 240,
     coverUrl: Multo,
-    audioUrl: MultoAudio,
-    videoUrl: Multo_video
+    audioUrl: MultoAudio
   },
   {
     id: 4,
@@ -107,8 +100,7 @@ export const tracks = [
     album: "Album 8",
     duration: 201,
     coverUrl: BackToFriends,
-    audioUrl: Back_To_Friends,
-    videoUrl: BacktoFriends
+    audioUrl: Back_To_Friends
   },
 
 ];

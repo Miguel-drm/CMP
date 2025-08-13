@@ -3,8 +3,6 @@ import {
   Pause,
   SkipBack,
   SkipForward,
-  SpeakerSimpleHigh,
-  SpeakerSimpleX,
   Shuffle,
   Repeat,
 } from "phosphor-react";
@@ -22,16 +20,13 @@ const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(6);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const [repeatMode, setRepeatMode] = useState<"none" | "one" | "all">("none");
   const [isShuffled, setIsShuffled] = useState(false);
-
-  const [volume] = useState(0.8);
-  const [isMuted, setIsMuted] = useState(false);
 
   const currentTrack = tracks[currentTrackIndex];
 
@@ -151,12 +146,6 @@ const MusicPlayer = () => {
   };
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted]);
-
-  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -179,19 +168,6 @@ const MusicPlayer = () => {
 
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" />
 
-      {currentTrack.videoUrl && (
-        <video
-          ref={videoRef}
-          key={currentTrack.videoUrl}
-          className="absolute inset-0 w-full h-full object-cover opacity-30 scale-100"
-          src={currentTrack.videoUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ pointerEvents: "none", zIndex: 1 }}
-        />
-      )}
       <div className="relative z-10 w-full max-w-[1280px] p-2 sm:p-4 md:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* PLAYER PANEL */}
@@ -222,7 +198,7 @@ const MusicPlayer = () => {
                     </div>
                   </div>
                   {/* Scrolling Text */}
-                  <div className="rounded-2xl w-full overflow-hidden my-5 font-fjalla">
+                  <div className="rounded-2xl w-full overflow-hidden my-5 py-3 font-fjalla">
                     <ScrollVelocityContainer
                       className="w-full max-w-full text-[clamp(2rem,3vw,4rem)] font-bold whitespace-nowrap"
                       paused={!isPlaying}
@@ -238,7 +214,7 @@ const MusicPlayer = () => {
                 </div>
 
                 {/* Controls */}
-                <div className="mt-5 p-5">
+                <div>
                   <ProgressBar
                     currentTime={currentTime}
                     duration={duration || currentTrack.duration}
@@ -249,10 +225,10 @@ const MusicPlayer = () => {
                     <span>{formatTime(currentTrack.duration)}</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-center gap-3 mt-6 w-full mx-auto">
+                  <div className="flex flex-wrap items-center justify-around gap-3 mt-6 w-full mx-auto p-3">
                     {/* Shuffle */}
                     <button
-                      className={`p-2 sm:p-3 rounded-full transition-all duration-300 border ${isShuffled
+                      className={` cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 border ${isShuffled
                         ? "bg-primary text-primary-foreground border-primary shadow-lg"
                         : "bg-secondary hover:bg-secondary/80 border-secondary"
                         }`}
@@ -263,7 +239,7 @@ const MusicPlayer = () => {
 
                     {/* Previous */}
                     <button
-                      className="p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className=" cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                       onClick={handlePrevious}
                     >
                       <SkipBack className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
@@ -271,7 +247,7 @@ const MusicPlayer = () => {
 
                     {/* Play / Pause */}
                     <button
-                      className="p-3 sm:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110"
+                      className=" cursor-pointer p-[clamp(1rem,4vw,2rem)] sm:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110"
                       onClick={handlePlayPause}
                     >
                       {isPlaying ? (
@@ -283,7 +259,7 @@ const MusicPlayer = () => {
 
                     {/* Next */}
                     <button
-                      className="p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className=" cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                       onClick={handleNext}
                     >
                       <SkipForward className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
@@ -291,7 +267,7 @@ const MusicPlayer = () => {
 
                     {/* Repeat */}
                     <button
-                      className="relative p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className=" cursor-pointer relative p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                       onClick={toggleRepeat}
                     >
                       <Repeat className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
@@ -299,18 +275,6 @@ const MusicPlayer = () => {
                         <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-xs text-primary-foreground font-bold">
                           1
                         </span>
-                      )}
-                    </button>
-
-                    {/* Volume */}
-                    <button
-                      className="p-1 sm:p-2 hover:scale-110 transition-all duration-300"
-                      onClick={() => setIsMuted(!isMuted)}
-                    >
-                      {isMuted ? (
-                        <SpeakerSimpleX className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
-                      ) : (
-                        <SpeakerSimpleHigh className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                       )}
                     </button>
                   </div>
@@ -323,8 +287,8 @@ const MusicPlayer = () => {
           {/* PLAYLIST */}
           <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300 tracking-widest">
             <div className="flex items-center justify-between mb-6 mx-6">
-              <h3 className="text-[clamp(1.5rem,6vw,2rem)] font-semibold font-lobster">Playlist</h3>
-              <img src={Nailong} alt="" className="w-10 h-10" />
+              <h3 className="text-[clamp(1.5rem,6vw,2rem)] font-semibold font-lobster cursor-pointer">Playlist</h3>
+              <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" />
             </div>
             <div
               className="space-y-3 h-[clamp(512px,40vh,100vh)] overflow-y-auto overflow-x-hidden 
