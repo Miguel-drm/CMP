@@ -18,7 +18,7 @@ import IkawPatutunguhanAudio from "../assets/Audio/Ikaw Patutunguhan.mp3"
 import New_Slang from "../assets/Audio/New Slang.mp3"
 import Let_Down from "../assets/Audio/Let Down.mp3"
 import ILYSB from "../assets/Audio/ILYSB.mp3"
-import Back_To_Friends from "../assets/Audio/Back_to_Friends.mp3"
+import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
 
 // MP4 Video
 import BacktoFriends from "../assets/Video/Back to Friends.mp4"
