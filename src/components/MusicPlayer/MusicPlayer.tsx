@@ -228,10 +228,10 @@ const MusicPlayer = () => {
                       paused={!isPlaying}
                     >
                       <ScrollVelocityRow baseVelocity={20} direction={1}>
-                        {currentTrack.title}&nbsp;
+                        {currentTrack.title}&nbsp;•&nbsp; 
                       </ScrollVelocityRow>
                       <ScrollVelocityRow baseVelocity={20} direction={-1}>
-                        {currentTrack.artist}&nbsp;
+                        {currentTrack.artist}&nbsp;•&nbsp;
                       </ScrollVelocityRow>
                     </ScrollVelocityContainer>
                   </div>
