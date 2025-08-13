@@ -34,8 +34,8 @@ const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
                 </div> */}
             </div>
             <div className='flex-1 min-w-0'>
-                <h4 className="truncate font-semibold">{track.title}</h4>
-                <p className="truncate text-sm text-muted-foreground">{track.artist}</p>
+                <h4 className="truncate font-semibold font-lobster tracking-widest">{track.title}</h4>
+                <p className="truncate text-sm text-muted-foreground font-fjalla">{track.artist}</p>
             </div>
             {/* Time Duration */}
             <div className='flex items-center gap-3 text-xs text-muted-foreground'>

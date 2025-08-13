@@ -23,6 +23,7 @@ import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
 // MP4 Video
 import BacktoFriends from "../assets/Video/Back to Friends.mp4"
 import Multo_video from "../assets/Video/Multo_Video.mp4"
+import About_You from "../assets/Video/AboutYou.mp4"
 
 export const tracks = [
   {
@@ -32,7 +33,8 @@ export const tracks = [
     album: "Album 1",
     duration: 326,
     coverUrl: AboutYou,
-    audioUrl: AboutYouAudio
+    audioUrl: AboutYouAudio,
+    videoUrl: About_You
   },
   {
     id: 2,
