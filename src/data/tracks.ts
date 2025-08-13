@@ -105,6 +105,6 @@ export const tracks = [
     coverUrl: BackToFriends,
     audioUrl: Back_To_Friends,
     videoUrl: BacktoFriends
-  }
+  },
 
 ];
