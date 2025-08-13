@@ -7,6 +7,7 @@ import IkawPatutunguhan from "../assets/Album/Ikaw Patutunguhan.png"
 import NewSlang from "../assets/Album/New Slang.png"
 import LetDown from "../assets/Album/Let Down.png"
 import ilysb from "../assets/Album/ILYSB.png"
+import BackToFriends from "../assets/Album/Back to Friends.png"
 
 // MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
@@ -17,6 +18,10 @@ import IkawPatutunguhanAudio from "../assets/Audio/Ikaw Patutunguhan.mp3"
 import New_Slang from "../assets/Audio/New Slang.mp3"
 import Let_Down from "../assets/Audio/Let Down.mp3"
 import ILYSB from "../assets/Audio/ILYSB.mp3"
+import Back_To_Friends from "../assets/Audio/Back_to_Friends.mp3"
+
+// MP4 Video
+import BacktoFriends from "../assets/Video/Back to Friends.mp4"
 
 export const tracks = [
   {
@@ -90,6 +95,16 @@ export const tracks = [
     duration: 241,
     coverUrl: ilysb,
     audioUrl: ILYSB
+  },
+  {
+    id: 9,
+    title: "Back to Friends",
+    artist: "The 1975",
+    album: "Album 8",
+    duration: 201,
+    coverUrl: BackToFriends,
+    audioUrl: Back_To_Friends,
+    videoUrl: BacktoFriends
   }
 
 ];
