@@ -181,7 +181,7 @@ const MusicPlayer = () => {
                   <div>
                     <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
                       <div className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden">
-                        <Ripple className="absolute rounded-2xl"/>
+                        <Ripple className="absolute rounded-2xl inset-0"/>
                         <img
                           src={currentTrack.coverUrl}
                           className="w-full h-full object-cover"
@@ -189,7 +189,7 @@ const MusicPlayer = () => {
                         />
                       </div>
                       <div className="flex flex-1 justify-center lg:text-left font-fjalla">
-                        <div className="text-center flex justify-center flex-col lg:text-left w-full">
+                        <div className="text-center flex justify-center flex-col lg:text-left w-full mt-5">
                           <h2 className="text-[clamp(1.5rem,6vw,3rem)] font-lobster mb-2 ">
                             {currentTrack.title}
                           </h2>
