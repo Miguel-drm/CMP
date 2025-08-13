@@ -55,7 +55,7 @@ export const tracks = [
   },
   {
     id: 5,
-    title: "Ikaw Patutunguhan",
+    title: "Ikaw Lang Patutunguhan",
     artist: "Amiel Sol",
     album: "Album 5",
     duration: 341,

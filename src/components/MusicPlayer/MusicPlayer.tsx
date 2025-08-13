@@ -196,16 +196,18 @@ const MusicPlayer = () => {
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
-                    <div className="flex items-center justify-between gap-10">
-                      <div className="w-64 h-64 mx-auto md:mx-0 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 bg-muted">
+                    <div className="flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
+                      <div className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 bg-muted">
                         {/* Image */}
                         <img src={currentTrack.coverUrl} className="w-full h-full object-cover" alt={currentTrack.album} />
                       </div>
-                      <div className="flex flex-col flex-1">
-                        <h2 className="text-5xl font-bold mb-2">
-                          {currentTrack.title}
-                        </h2>
-                        <p className="text-muted-foreground"> {currentTrack.artist} </p>
+                      <div className="flex flex-1 justify-center lg:text-left">
+                        <div className="text-center flex justify-center flex-col lg:text-left w-full">
+                          <h2 className="text-5xl font-bold mb-2">
+                            {currentTrack.title}
+                          </h2>
+                          <p className="text-muted-foreground"> {currentTrack.artist} </p>
+                        </div>
                       </div>
                     </div>
                   </div>
