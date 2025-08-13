@@ -254,7 +254,7 @@ const MusicPlayer = () => {
                   </div>
 
                   {/* Controls */}
-                  <div className="mt-5">
+                  <div className="mt-5 p-5">
                     <ProgressBar
                       currentTime={currentTime}
                       duration={duration || currentTrack.duration}
@@ -264,61 +264,74 @@ const MusicPlayer = () => {
                       <span>{formatTime(currentTime)}</span>
                       <span>{formatTime(currentTrack.duration)}</span>
                     </div>
+
                     <div className="flex flex-wrap items-center justify-center gap-3 mt-6 w-full mx-auto">
+                      {/* Shuffle */}
                       <button
-                        className={`p-3 rounded-full transition-all duration-300 border ${isShuffled
-                          ? "bg-primary text-primary-foreground border-primary shadow-lg"
-                          : "bg-secondary hover:bg-secondary/80 border-secondary"
+                        className={`p-2 sm:p-3 rounded-full transition-all duration-300 border ${isShuffled
+                            ? "bg-primary text-primary-foreground border-primary shadow-lg"
+                            : "bg-secondary hover:bg-secondary/80 border-secondary"
                           }`}
                         onClick={() => setIsShuffled(!isShuffled)}
                       >
-                        <Shuffle className="w-8 h-8" />
+                        <Shuffle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                       </button>
+
+                      {/* Previous */}
                       <button
-                        className="p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                        className="p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                         onClick={handlePrevious}
                       >
-                        <SkipBack className="w-8 h-8" />
+                        <SkipBack className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                       </button>
+
+                      {/* Play / Pause */}
                       <button
-                        className="p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110"
+                        className="p-3 sm:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110"
                         onClick={handlePlayPause}
                       >
                         {isPlaying ? (
-                          <Pause className="w-12 h-12" />
+                          <Pause className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
                         ) : (
-                          <Play className="w-12 h-12" />
+                          <Play className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
                         )}
                       </button>
+
+                      {/* Next */}
                       <button
-                        className="p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                        className="p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                         onClick={handleNext}
                       >
-                        <SkipForward className="w-8 h-8" />
+                        <SkipForward className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                       </button>
+
+                      {/* Repeat */}
                       <button
-                        className="relative p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                        className="relative p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
                         onClick={toggleRepeat}
                       >
-                        <Repeat className="w-8 h-8" />
+                        <Repeat className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                         {repeatMode === "one" && (
                           <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-xs text-primary-foreground font-bold">
                             1
                           </span>
                         )}
                       </button>
+
+                      {/* Volume */}
                       <button
-                        className="p-2 hover:scale-110 transition-all duration-300"
+                        className="p-1 sm:p-2 hover:scale-110 transition-all duration-300"
                         onClick={() => setIsMuted(!isMuted)}
                       >
                         {isMuted ? (
-                          <SpeakerSimpleX className="w-8 h-8" />
+                          <SpeakerSimpleX className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                         ) : (
-                          <SpeakerSimpleHigh className="w-8 h-8" />
+                          <SpeakerSimpleHigh className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                         )}
                       </button>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -329,7 +342,7 @@ const MusicPlayer = () => {
                 <h3 className="text-lg font-semibold">Playlist</h3>
                 <img src={Nailong} alt="" className="w-10 h-10" />
               </div>
-              <div className="space-y-3 h-128 overflow-y-auto scrollbar-thin">
+              <div className="space-y-3 h-128 overflow-y-auto scrollbar-thin overflow-x-hidden">
                 {tracks.map((track, index) => (
                   <Playlist
                     key={index}
