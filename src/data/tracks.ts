@@ -7,7 +7,7 @@ import IkawPatutunguhan from "../assets/Album/Ikaw Patutunguhan.png"
 import NewSlang from "../assets/Album/New Slang.png"
 import LetDown from "../assets/Album/Let Down.png"
 import ilysb from "../assets/Album/ILYSB.png"
-import BackToFriends from "../assets/Album/Back to Friends.png"
+import BackToFriends from "../assets/Album/BacktoFriends.png"
 
 // MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
