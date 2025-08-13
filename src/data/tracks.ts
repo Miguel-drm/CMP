@@ -6,6 +6,7 @@ import Sikulo from "../assets/Album/Sikulo.png"
 import IkawPatutunguhan from "../assets/Album/Ikaw Patutunguhan.png"
 import NewSlang from "../assets/Album/New Slang.png"
 import LetDown from "../assets/Album/Let Down.png"
+import ilysb from "../assets/Album/ILYSB.png"
 
 // MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
@@ -15,6 +16,7 @@ import SikuloAudio from "../assets/Audio/Sikulo.mp3"
 import IkawPatutunguhanAudio from "../assets/Audio/Ikaw Patutunguhan.mp3"
 import New_Slang from "../assets/Audio/New Slang.mp3"
 import Let_Down from "../assets/Audio/Let Down.mp3"
+import ILYSB from "../assets/Audio/ILYSB.mp3"
 
 export const tracks = [
   {
@@ -79,6 +81,15 @@ export const tracks = [
     duration: 299,
     coverUrl: LetDown,
     audioUrl: Let_Down
+  },
+  {
+    id: 8,
+    title: "ILYSB",
+    artist: "LANY",
+    album: "Album 7",
+    duration: 241,
+    coverUrl: ilysb,
+    audioUrl: ILYSB
   }
 
 ];
