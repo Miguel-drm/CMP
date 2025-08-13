@@ -15,6 +15,7 @@ import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
 } from "@/components/magicui/scroll-based-velocity";
+import { Ripple } from "../magicui/ripple";
 
 const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -169,6 +170,7 @@ const MusicPlayer = () => {
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" />
 
       <div className="relative z-10 w-full max-w-[1280px] p-2 sm:p-4 md:p-6 lg:p-8">
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* PLAYER PANEL */}
           <div className="lg:col-span-2  rounded-3xl p-8  text-card-foreground transition-colors duration-300 overflow-hidden">
@@ -177,8 +179,9 @@ const MusicPlayer = () => {
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
-                    <div className="flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
-                      <div className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
+                      <div className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden">
+                        <Ripple className="absolute rounded-2xl"/>
                         <img
                           src={currentTrack.coverUrl}
                           className="w-full h-full object-cover"
@@ -204,7 +207,7 @@ const MusicPlayer = () => {
                       paused={!isPlaying}
                     >
                       <ScrollVelocityRow baseVelocity={20} direction={1}>
-                        {currentTrack.title}&nbsp;|&nbsp; 
+                        {currentTrack.title}&nbsp;|&nbsp;
                       </ScrollVelocityRow>
                       <ScrollVelocityRow baseVelocity={20} direction={-1}>
                         {currentTrack.artist}&nbsp;|&nbsp;
