@@ -33,8 +33,7 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [previewTime, setPreviewTime] = useState<number | null>(null);
-  const [showVideo, setShowVideo] = useState(false);
+    const [showVideo, setShowVideo] = useState(false);
 
   // Simplified repeat: false = repeat queue (default), true = repeat current song
   const [repeatCurrentSong, setRepeatCurrentSong] = useState(false);
@@ -546,7 +545,7 @@ const MusicPlayer = () => {
                     onSeek={handleSeek}
                   />
                   <div className="flex justify-between text-sm text-muted-foreground mt-2 font-spotify font-medium">
-                    <span>{previewTime !== null ? formatTime(previewTime) : formatTime(currentTime)}</span>
+                    <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(currentTrack.duration)}</span>
                   </div>
 
