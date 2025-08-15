@@ -8,6 +8,8 @@ type Track = {
   duration: number;
   coverUrl: string;
   audioUrl: string;
+  videoUrl: string;
+  showVideoSecond: number;
 };
 
 interface PlaylistProps {

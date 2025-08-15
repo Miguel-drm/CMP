@@ -58,7 +58,7 @@ function App() {
           ref={mainContentRef}
           className="relative min-h-[calc(100dvh-78px)] w-full opacity-0"
         >
-          <div ref={navRef}>
+          <div ref={navRef} className="fixed z-1000 w-full">
             <Nav />
           </div>
           <div ref={musicRef}>

@@ -20,6 +20,12 @@ import Let_Down from "../assets/Audio/Let Down.mp3"
 import ILYSB from "../assets/Audio/ILYSB.mp3"
 import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
 
+// MP4 Video
+import AboutYouVid from "../assets/Video/AboutYou.mp4"
+import BackToFriendsVid from "../assets/Video/Back to Friends.mp4"
+import LetDownVid from "../assets/Video/LetDown.mp4"
+import MultoVid from "../assets/Video/Multo_Video.mp4"
+
 export const tracks = [
   {
     id: 1,
@@ -28,7 +34,9 @@ export const tracks = [
     album: "Album 1",
     duration: 326,
     coverUrl: AboutYou,
-    audioUrl: AboutYouAudio
+    audioUrl: AboutYouAudio,
+    videoUrl: AboutYouVid,
+    showVideoSecond: 1 // Show video at 30 seconds
   },
   {
     id: 2,
@@ -37,7 +45,9 @@ export const tracks = [
     album: "Album 2",
     duration: 221,
     coverUrl: Blue,
-    audioUrl: BlueAudio
+    audioUrl: BlueAudio,
+    videoUrl: "https://example.com/videos/blue.mp4", // Replace with actual video URL
+    showVideoSecond: 45 // Show video at 45 seconds
   },
   {
     id: 3,
@@ -46,7 +56,9 @@ export const tracks = [
     album: "Album 3",
     duration: 240,
     coverUrl: Multo,
-    audioUrl: MultoAudio
+    audioUrl: MultoAudio,
+    videoUrl: MultoVid,
+    showVideoSecond: 0 // Show video at 1 minute
   },
   {
     id: 4,
@@ -55,7 +67,9 @@ export const tracks = [
     album: "Album 4",
     duration: 315,
     coverUrl: Sikulo,
-    audioUrl: SikuloAudio
+    audioUrl: SikuloAudio,
+    videoUrl: "https://example.com/videos/sikulo.mp4", // Replace with actual video URL
+    showVideoSecond: 90 // Show video at 1:30
   },
   {
     id: 5,
@@ -64,7 +78,9 @@ export const tracks = [
     album: "Album 5",
     duration: 341,
     coverUrl: IkawPatutunguhan,
-    audioUrl: IkawPatutunguhanAudio
+    audioUrl: IkawPatutunguhanAudio,
+    videoUrl: "https://example.com/videos/ikaw-patutunguhan.mp4", // Replace with actual video URL
+    showVideoSecond: 120 // Show video at 2 minutes
   },
   {
     id: 6,
@@ -73,7 +89,9 @@ export const tracks = [
     album: "Album 6",
     duration: 232,
     coverUrl: NewSlang,
-    audioUrl: New_Slang
+    audioUrl: New_Slang,
+    videoUrl: "https://example.com/videos/new-slang.mp4", // Replace with actual video URL
+    showVideoSecond: 75 // Show video at 1:15
   },
   {
     id: 7,
@@ -82,7 +100,9 @@ export const tracks = [
     album: "OK Computer",
     duration: 299,
     coverUrl: LetDown,
-    audioUrl: Let_Down
+    audioUrl: Let_Down,
+    videoUrl: LetDownVid,
+    showVideoSecond: 218 // Show video at 3:35
   },
   {
     id: 8,
@@ -91,7 +111,9 @@ export const tracks = [
     album: "Album 7",
     duration: 241,
     coverUrl: ilysb,
-    audioUrl: ILYSB
+    audioUrl: ILYSB,
+    videoUrl: "https://example.com/videos/ilysb.mp4", // Replace with actual video URL
+    showVideoSecond: 50 // Show video at 50 seconds
   },
   {
     id: 9,
@@ -100,7 +122,9 @@ export const tracks = [
     album: "Album 8",
     duration: 201,
     coverUrl: BackToFriends,
-    audioUrl: Back_To_Friends
+    audioUrl: Back_To_Friends,
+    videoUrl: BackToFriendsVid,
+    showVideoSecond: 1 // Show video at 1:20
   },
 
 ];

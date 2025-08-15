@@ -21,6 +21,7 @@ import { Ripple } from "../magicui/ripple";
 const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
 
   // Animation refs
   const albumCoverRef = useRef<HTMLDivElement>(null);
@@ -32,6 +33,8 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [previewTime, setPreviewTime] = useState<number | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Simplified repeat: false = repeat queue (default), true = repeat current song
   const [repeatCurrentSong, setRepeatCurrentSong] = useState(false);
@@ -47,9 +50,148 @@ const MusicPlayer = () => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  // Handle preview time from progress bar
+
+  // Video control functions
+  const showBackgroundVideo = useCallback(() => {
+    console.log('showBackgroundVideo called');
+    const video = backgroundVideoRef.current;
+    console.log('Video element:', video);
+    console.log('Video URL:', currentTrack.videoUrl);
+    
+    if (video && currentTrack.videoUrl) {
+      console.log('Setting video src to:', currentTrack.videoUrl);
+      video.src = currentTrack.videoUrl;
+      video.currentTime = Math.max(0, currentTime - currentTrack.showVideoSecond);
+      
+      if (isPlaying) {
+        console.log('Playing video');
+        video.play().catch((error) => {
+          console.error('Error playing video:', error);
+        });
+      }
+      
+      setShowVideo(true);
+      console.log('Set showVideo to true');
+      
+      // Ultra-smooth GSAP fade-in animation
+      const tl = gsap.timeline();
+      tl.set(backgroundVideoRef.current, { 
+        opacity: 0, 
+        scale: 1.02,
+        filter: "blur(8px) brightness(1.1)",
+        transformOrigin: "center center"
+      })
+      .to(backgroundVideoRef.current, {
+        opacity: 0.2,
+        duration: 0.4,
+        ease: "sine.out"
+      })
+      .to(backgroundVideoRef.current, {
+        opacity: 0.5,
+        scale: 1.01,
+        filter: "blur(4px) brightness(1.05)",
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.2")
+      .to(backgroundVideoRef.current, {
+        opacity: 0.65,
+        scale: 1,
+        filter: "blur(0px) brightness(1)",
+        duration: 1.2,
+        ease: "power1.out"
+      }, "-=0.4")
+      .to(backgroundVideoRef.current, {
+        opacity: 0.7,
+        duration: 0.6,
+        ease: "sine.inOut"
+      }, "-=0.3");
+    } else {
+      console.log('Video element or videoUrl missing:', { video: !!video, videoUrl: currentTrack.videoUrl });
+    }
+  }, [currentTrack, currentTime, isPlaying]);
+
+  const hideBackgroundVideo = useCallback(() => {
+    const video = backgroundVideoRef.current;
+    if (video) {
+      // Ultra-smooth GSAP fade-out animation
+      const tl = gsap.timeline();
+      tl.to(backgroundVideoRef.current, {
+        opacity: 0.4,
+        filter: "blur(2px) brightness(0.9)",
+        duration: 0.4,
+        ease: "sine.inOut"
+      })
+      .to(backgroundVideoRef.current, {
+        opacity: 0.15,
+        scale: 0.98,
+        filter: "blur(6px) brightness(0.7)",
+        duration: 0.6,
+        ease: "power2.inOut"
+      }, "-=0.2")
+      .to(backgroundVideoRef.current, {
+        opacity: 0,
+        scale: 0.96,
+        filter: "blur(12px) brightness(0.5)",
+        duration: 0.8,
+        ease: "power3.in",
+        onComplete: () => {
+          video.pause();
+          video.src = "";
+          setShowVideo(false);
+          // Reset properties for next time
+          gsap.set(backgroundVideoRef.current, {
+            scale: 1,
+            filter: "blur(0px) brightness(1)",
+            transformOrigin: "center center"
+          });
+        }
+      }, "-=0.3");
+    }
+  }, []);
+
+  // Check if video should be shown based on current time
+  useEffect(() => {
+    console.log('Video check:', {
+      currentTime,
+      showVideoSecond: currentTrack.showVideoSecond,
+      videoUrl: currentTrack.videoUrl,
+      showVideo,
+      isPlaying,
+      shouldShow: currentTime >= currentTrack.showVideoSecond && !showVideo && isPlaying
+    });
+    
+    if (currentTrack.videoUrl && currentTrack.showVideoSecond) {
+      if (currentTime >= currentTrack.showVideoSecond && !showVideo && isPlaying) {
+        console.log('Showing video at', currentTime);
+        showBackgroundVideo();
+      } else if (currentTime < currentTrack.showVideoSecond && showVideo) {
+        console.log('Hiding video at', currentTime);
+        hideBackgroundVideo();
+      }
+    }
+  }, [currentTime, currentTrack, showVideo, isPlaying, showBackgroundVideo, hideBackgroundVideo]);
+
+  // Sync background video with audio
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (video && showVideo) {
+      if (isPlaying) {
+        video.play().catch(console.error);
+      } else {
+        video.pause();
+      }
+    }
+  }, [isPlaying, showVideo]);
+
   // Animation function for track changes
   const animateTrackChange = useCallback(() => {
     const tl = gsap.timeline();
+
+    // Hide video when changing tracks
+    if (showVideo) {
+      hideBackgroundVideo();
+    }
 
     // Animate out current elements
     tl.to([albumCoverRef.current, titleRef.current, artistRef.current, scrollingTextRef.current], {
@@ -85,7 +227,7 @@ const MusicPlayer = () => {
     }, "-=0.2");
 
     return tl;
-  }, []);
+  }, [showVideo, hideBackgroundVideo]);
 
   // Enhanced shuffle logic with proper queue management
   const createShuffledQueue = useCallback(() => {
@@ -191,6 +333,11 @@ const MusicPlayer = () => {
         audio.currentTime = 0;
         setCurrentTime(0);
         
+        // Hide video when restarting
+        if (showVideo) {
+          hideBackgroundVideo();
+        }
+        
         // Use a small delay to ensure the audio element is ready
         setTimeout(() => {
           audio.play().then(() => {
@@ -210,7 +357,7 @@ const MusicPlayer = () => {
 
     // Default behavior: continue to next track (queue repeat)
     handleNext();
-  }, [repeatCurrentSong, handleNext]);
+  }, [repeatCurrentSong, handleNext, showVideo, hideBackgroundVideo]);
 
   const handlePlayPause = useCallback(() => {
     const audio = audioRef.current;
@@ -230,6 +377,13 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       if (videoRef.current) videoRef.current.currentTime = time;
+      
+      // Sync background video
+      if (backgroundVideoRef.current && showVideo) {
+        const videoTime = Math.max(0, time - currentTrack.showVideoSecond);
+        backgroundVideoRef.current.currentTime = videoTime;
+      }
+      
       setCurrentTime(time);
     }
   };
@@ -307,17 +461,31 @@ const MusicPlayer = () => {
   }, [handleTrackEnd]);
 
   return (
-    <div className="relative min-h-[calc(100dvh-78px)] flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
+    <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
+
+      {/* Background Video */}
+      {true && (
+        <video
+          ref={backgroundVideoRef}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 pointer-events-none z-0"
+          muted
+          loop
+          playsInline style={{opacity: showVideo ? 0.6 : 0}}
+        />
+      )}
+
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-background/40 backdrop-blur-sm z-[1]" />
 
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" />
 
-      <div className="relative z-10 w-full max-w-[1280px] p-2 sm:p-4 md:p-6 lg:p-8">
+      <div className="relative z-10 w-full max-w-[1280px] p-2 sm:p-4 md:p-6 lg:p-8 ">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
           {/* PLAYER PANEL */}
-          <div className="lg:col-span-2  rounded-3xl p-8  text-card-foreground transition-colors duration-300 overflow-hidden">
+          <div className="lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
             {/* Track Info */}
-            <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex flex-col md:flex-row gap-8 mt-1 lg:mt-0">
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
@@ -378,7 +546,7 @@ const MusicPlayer = () => {
                     onSeek={handleSeek}
                   />
                   <div className="flex justify-between text-sm text-muted-foreground mt-2 font-spotify font-medium">
-                    <span>{formatTime(currentTime)}</span>
+                    <span>{previewTime !== null ? formatTime(previewTime) : formatTime(currentTime)}</span>
                     <span>{formatTime(currentTrack.duration)}</span>
                   </div>
 
