@@ -65,8 +65,8 @@ const ProgressBar = ({ currentTime, duration, onSeek }: ProgressBarProps) => {
         <div
           className={`${
             isDragging 
-              ? "w-4 h-4 scale-110" 
-              : "w-3 h-3 scale-100 group-hover:w-4 group-hover:h-4 group-hover:scale-110"
+              ? "w-5 h-5 scale-110" 
+              : "w-5 h-5 scale-100 group-hover:w-4 group-hover:h-4 group-hover:scale-150"
           } absolute top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background border-2 border-primary rounded-full shadow-lg transition-all duration-150 pointer-events-none opacity-100`}
           style={{ left: `${displayProgress}%` }}
         />
