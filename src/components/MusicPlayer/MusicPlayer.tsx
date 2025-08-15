@@ -485,7 +485,7 @@ const MusicPlayer = () => {
           {/* PLAYER PANEL */}
           <div className="lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
             {/* Track Info */}
-            <div className="flex flex-col md:flex-row gap-8 mt-1 lg:mt-0">
+            <div className="flex flex-col md:flex-row gap-8 mt-13 lg:mt-0">
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
