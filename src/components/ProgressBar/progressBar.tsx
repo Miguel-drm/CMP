@@ -45,22 +45,31 @@ const ProgressBar = ({ currentTime, duration, onSeek }: ProgressBarProps) => {
   };
 
   return (
-    <div className="relative bg-gray-300 rounded-full">
+    <div className="w-full group select-none">
       <div
         ref={barRef}
-        className="relative h-3 bg-white/10 rounded-full cursor-pointer group overflow-hidden"
+        className="relative h-1 md:h-1.5 rounded-full bg-muted/30 hover:bg-muted/40 transition-[height,background-color] duration-200 cursor-pointer"
         onPointerDown={handlePointerDown}
+        role="slider"
+        aria-label="Seek"
+        aria-valuemin={0}
+        aria-valuemax={duration || 0}
+        aria-valuenow={(displayProgress / 100) * (duration || 0)}
       >
         {/* Progress Fill */}
         <div
-          className="absolute top-0 left-0 h-full bg-gray-500 rounded-full transition-all duration-150 shadow-lg shadow-pink-500/50"
+          className="absolute top-0 left-0 h-full bg-primary rounded-full transition-[width] duration-150 pointer-events-none"
           style={{ width: `${displayProgress}%` }}
-        ></div>
-        {/* Progress Thumb */}
+        />
+        {/* Progress Thumb (always visible) */}
         <div
-          className="absolute top-1/2 w-5 h-5 bg-white rounded-full shadow-lg transition-all duration-150 border-pink-500"
-          style={{ left: `${displayProgress}%`, transform: "translate(-50%, -50%)" }}
-        ></div>
+          className={`${
+            isDragging 
+              ? "w-4 h-4 scale-110" 
+              : "w-3 h-3 scale-100 group-hover:w-4 group-hover:h-4 group-hover:scale-110"
+          } absolute top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background border-2 border-primary rounded-full shadow-lg transition-all duration-150 pointer-events-none opacity-100`}
+          style={{ left: `${displayProgress}%` }}
+        />
       </div>
     </div>
   );

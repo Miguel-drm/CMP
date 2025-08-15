@@ -10,6 +10,7 @@ import ProgressBar from "../ProgressBar/progressBar";
 import Playlist from "../Playlist/playlist";
 import { tracks } from "../../data/tracks";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { gsap } from "gsap";
 import Nailong from "../../assets/nailong.png";
 import {
   ScrollVelocityContainer,
@@ -21,13 +22,22 @@ const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Animation refs
+  const albumCoverRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const artistRef = useRef<HTMLParagraphElement>(null);
+  const scrollingTextRef = useRef<HTMLDivElement>(null);
+
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [repeatMode, setRepeatMode] = useState<"none" | "one" | "all">("none");
+  // Simplified repeat: false = repeat queue (default), true = repeat current song
+  const [repeatCurrentSong, setRepeatCurrentSong] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
+  const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
+  const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
 
   const currentTrack = tracks[currentTrackIndex];
 
@@ -37,85 +47,170 @@ const MusicPlayer = () => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const getRandomTrackIndex = useCallback(
-    (excludeIndex: number) => {
-      let idx = Math.floor(Math.random() * tracks.length);
-      while (tracks.length > 1 && idx === excludeIndex) {
-        idx = Math.floor(Math.random() * tracks.length);
-      }
-      return idx;
-    },
-    []
-  );
+  // Animation function for track changes
+  const animateTrackChange = useCallback(() => {
+    const tl = gsap.timeline();
+
+    // Animate out current elements
+    tl.to([albumCoverRef.current, titleRef.current, artistRef.current, scrollingTextRef.current], {
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.out"
+    })
+    // Reset positions for incoming animation
+    .set(albumCoverRef.current, { x: -100, scale: 0.8 })
+    .set([titleRef.current, artistRef.current], { y: -30 })
+    .set(scrollingTextRef.current, { y: 20, scale: 0.95 })
+    // Animate in new elements
+    .to(albumCoverRef.current, {
+      x: 0,
+      scale: 1,
+      opacity: 1,
+      duration: 0.6,
+      ease: "back.out(1.7)"
+    }, "+=0.1")
+    .to([titleRef.current, artistRef.current], {
+      y: 0,
+      opacity: 1,
+      duration: 0.5,
+      ease: "power2.out",
+      stagger: 0.1
+    }, "-=0.4")
+    .to(scrollingTextRef.current, {
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      duration: 0.4,
+      ease: "power2.out"
+    }, "-=0.2");
+
+    return tl;
+  }, []);
+
+  // Enhanced shuffle logic with proper queue management
+  const createShuffledQueue = useCallback(() => {
+    const indices = Array.from({ length: tracks.length }, (_, i) => i);
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  }, [tracks.length]);
+
+  const getNextShuffledTrack = useCallback(() => {
+    if (shuffledIndices.length === 0) {
+      const newQueue = createShuffledQueue();
+      setShuffledIndices(newQueue);
+      return newQueue[0];
+    }
+    
+    const currentIndexInQueue = shuffledIndices.indexOf(currentTrackIndex);
+    if (currentIndexInQueue === -1 || currentIndexInQueue === shuffledIndices.length - 1) {
+      // Current track not in queue or at end - always repeat queue (create new shuffled queue)
+      const newQueue = createShuffledQueue();
+      setShuffledIndices(newQueue);
+      return newQueue[0];
+    }
+    
+    return shuffledIndices[currentIndexInQueue + 1];
+  }, [shuffledIndices, currentTrackIndex, createShuffledQueue]);
+
+  const getPreviousShuffledTrack = useCallback(() => {
+    if (shuffleHistory.length > 0) {
+      const previousTrack = shuffleHistory[shuffleHistory.length - 1];
+      setShuffleHistory(prev => prev.slice(0, -1));
+      return previousTrack;
+    }
+    
+    // If no history, go to a random track
+    const availableIndices = Array.from({ length: tracks.length }, (_, i) => i)
+      .filter(i => i !== currentTrackIndex);
+    return availableIndices[Math.floor(Math.random() * availableIndices.length)];
+  }, [shuffleHistory, currentTrackIndex, tracks.length]);
 
   const playTrackAtIndex = useCallback((index: number) => {
+    // Add current track to shuffle history if shuffled
+    if (isShuffled && currentTrackIndex !== index) {
+      setShuffleHistory(prev => [...prev, currentTrackIndex]);
+    }
+    
+    // Only animate if track is actually changing
+    const isTrackChanging = index !== currentTrackIndex;
+    
     setCurrentTrackIndex(index);
     setIsPlaying(true);
+    
+    // Trigger animation if track changed
+    if (isTrackChanging) {
+      setTimeout(() => {
+        animateTrackChange();
+      }, 50);
+    }
+    
     setTimeout(() => {
       audioRef.current?.play();
       if (videoRef.current) videoRef.current.play();
     }, 0);
-  }, []);
+  }, [isShuffled, currentTrackIndex, animateTrackChange]);
 
   const handlePrevious = useCallback(() => {
+    let newIndex: number;
+    
     if (isShuffled) {
-      playTrackAtIndex(getRandomTrackIndex(currentTrackIndex));
+      newIndex = getPreviousShuffledTrack();
     } else {
-      const newIndex =
-        currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
-      playTrackAtIndex(newIndex);
+      // Always loop back to end when at beginning (queue repeat behavior)
+      newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
     }
-  }, [isShuffled, currentTrackIndex, getRandomTrackIndex, playTrackAtIndex]);
+    
+    playTrackAtIndex(newIndex);
+  }, [isShuffled, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, tracks.length]);
 
   const handleNext = useCallback(() => {
+    let newIndex: number;
+    
     if (isShuffled) {
-      playTrackAtIndex(getRandomTrackIndex(currentTrackIndex));
+      newIndex = getNextShuffledTrack();
     } else {
-      const newIndex =
-        currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
-      playTrackAtIndex(newIndex);
+      // Always loop back to beginning when at end (queue repeat behavior)
+      newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
     }
-  }, [isShuffled, currentTrackIndex, getRandomTrackIndex, playTrackAtIndex]);
+    
+    playTrackAtIndex(newIndex);
+  }, [isShuffled, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, tracks.length]);
 
   const handleTrackEnd = useCallback(() => {
-    if (repeatMode === "one") {
-      audioRef.current!.currentTime = 0;
-      videoRef.current!.currentTime = 0;
-      audioRef.current?.play();
-      videoRef.current?.play();
-      setIsPlaying(true);
-      return;
-    }
-
-    if (isShuffled) {
-      if (tracks.length > 1) {
-        playTrackAtIndex(getRandomTrackIndex(currentTrackIndex));
-      } else {
-        setIsPlaying(false);
+    // Repeat Current Song: replay current track
+    if (repeatCurrentSong) {
+      const audio = audioRef.current;
+      const video = videoRef.current;
+      
+      if (audio) {
+        // Reset the audio position
+        audio.currentTime = 0;
+        setCurrentTime(0);
+        
+        // Use a small delay to ensure the audio element is ready
+        setTimeout(() => {
+          audio.play().then(() => {
+            setIsPlaying(true);
+            if (video) {
+              video.currentTime = 0;
+              video.play().catch(console.error);
+            }
+          }).catch((error) => {
+            console.error("Error playing audio:", error);
+            setIsPlaying(false);
+          });
+        }, 100);
       }
       return;
     }
 
-    if (repeatMode === "all") {
-      const nextIndex =
-        currentTrackIndex === tracks.length - 1 ? 0 : currentTrackIndex + 1;
-      playTrackAtIndex(nextIndex);
-      return;
-    }
-
-    if (currentTrackIndex < tracks.length - 1) {
-      playTrackAtIndex(currentTrackIndex + 1);
-    } else {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    }
-  }, [
-    repeatMode,
-    isShuffled,
-    currentTrackIndex,
-    getRandomTrackIndex,
-    playTrackAtIndex,
-  ]);
+    // Default behavior: continue to next track (queue repeat)
+    handleNext();
+  }, [repeatCurrentSong, handleNext]);
 
   const handlePlayPause = useCallback(() => {
     const audio = audioRef.current;
@@ -140,11 +235,58 @@ const MusicPlayer = () => {
   };
 
   const toggleRepeat = () => {
-    const modes: Array<"none" | "one" | "all"> = ["none", "one", "all"];
-    const currentIndex = modes.indexOf(repeatMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    setRepeatMode(modes[nextIndex]);
+    // Simple toggle: off (repeat queue) <-> on (repeat current song)
+    setRepeatCurrentSong(!repeatCurrentSong);
   };
+
+  const toggleShuffle = () => {
+    const newShuffleState = !isShuffled;
+    setIsShuffled(newShuffleState);
+    
+    if (newShuffleState) {
+      // Create initial shuffled queue
+      const newQueue = createShuffledQueue();
+      setShuffledIndices(newQueue);
+      setShuffleHistory([]);
+    } else {
+      // Clear shuffle state
+      setShuffledIndices([]);
+      setShuffleHistory([]);
+    }
+  };
+
+  // Initial animation on component mount
+  useEffect(() => {
+    gsap.set([albumCoverRef.current, titleRef.current, artistRef.current, scrollingTextRef.current], {
+      opacity: 0
+    });
+    
+    const tl = gsap.timeline({ delay: 0.2 });
+    tl.set(albumCoverRef.current, { x: -100, scale: 0.8 })
+      .set([titleRef.current, artistRef.current], { y: -30 })
+      .set(scrollingTextRef.current, { y: 20, scale: 0.95 })
+      .to(albumCoverRef.current, {
+        x: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "back.out(1.7)"
+      })
+      .to([titleRef.current, artistRef.current], {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out",
+        stagger: 0.15
+      }, "-=0.5")
+      .to(scrollingTextRef.current, {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.3");
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -180,20 +322,29 @@ const MusicPlayer = () => {
                 <div className="text-center md:text-left">
                   <div>
                     <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
-                      <div className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden">
+                      <div 
+                        ref={albumCoverRef}
+                        className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden"
+                      >
                         <Ripple className="absolute rounded-2xl inset-0 opacity-80"/>
                         <img
                           src={currentTrack.coverUrl}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover opacity-100"
                           alt={currentTrack.album}
                         />
                       </div>
-                      <div className="flex flex-1 justify-center lg:text-left font-fjalla">
+                      <div className="flex flex-1 justify-center lg:text-left">
                         <div className="text-center flex justify-center flex-col lg:text-left w-full mt-5">
-                          <h2 className="text-[clamp(1.5rem,6vw,3rem)] font-lobster mb-2 ">
+                          <h2 
+                            ref={titleRef}
+                            className="text-[clamp(1.5rem,6vw,3rem)] font-bold font-spotify-display mb-2 tracking-tight"
+                          >
                             {currentTrack.title}
                           </h2>
-                          <p className="text-muted-foreground text-[clamp(0.8rem,4vw,1.2rem)]">
+                          <p 
+                            ref={artistRef}
+                            className="text-muted-foreground text-[clamp(0.8rem,4vw,1.2rem)] font-medium font-spotify"
+                          >
                             {currentTrack.artist}
                           </p>
                         </div>
@@ -201,16 +352,19 @@ const MusicPlayer = () => {
                     </div>
                   </div>
                   {/* Scrolling Text */}
-                  <div className="rounded-2xl w-full overflow-hidden my-5 py-3 font-fjalla">
+                  <div 
+                    ref={scrollingTextRef}
+                    className="rounded-2xl w-full overflow-hidden my-5 py-3"
+                  >
                     <ScrollVelocityContainer
-                      className="w-full max-w-full text-[clamp(2rem,3vw,4rem)] font-bold whitespace-nowrap"
+                      className="w-full max-w-full text-[clamp(2rem,3vw,4rem)] font-bold font-spotify-display whitespace-nowrap tracking-tight"
                       paused={!isPlaying}
                     >
                       <ScrollVelocityRow baseVelocity={20} direction={1}>
-                        {currentTrack.title}&nbsp;|&nbsp;
+                        {currentTrack.title}&nbsp;•&nbsp;
                       </ScrollVelocityRow>
                       <ScrollVelocityRow baseVelocity={20} direction={-1}>
-                        {currentTrack.artist}&nbsp;|&nbsp;
+                        {currentTrack.artist}&nbsp;•&nbsp;
                       </ScrollVelocityRow>
                     </ScrollVelocityContainer>
                   </div>
@@ -223,59 +377,89 @@ const MusicPlayer = () => {
                     duration={duration || currentTrack.duration}
                     onSeek={handleSeek}
                   />
-                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2 font-spotify font-medium">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(currentTrack.duration)}</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-around gap-3 mt-6 w-full mx-auto p-3">
+                  <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8 w-full mx-auto p-2">
                     {/* Shuffle */}
                     <button
-                      className={` cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 border ${isShuffled
-                        ? "bg-primary text-primary-foreground border-primary shadow-lg"
-                        : "bg-secondary hover:bg-secondary/80 border-secondary"
-                        }`}
-                      onClick={() => setIsShuffled(!isShuffled)}
+                      className={`group cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
+                        isShuffled
+                          ? "text-primary bg-primary/10 shadow-sm"
+                          : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
+                      }`}
+                      onClick={toggleShuffle}
+                      aria-label={`Shuffle ${isShuffled ? "on" : "off"}`}
+                      title={isShuffled ? "Turn off shuffle" : "Turn on shuffle"}
                     >
-                      <Shuffle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                      <Shuffle 
+                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110" 
+                        weight={isShuffled ? "fill" : "regular"}
+                      />
                     </button>
 
                     {/* Previous */}
                     <button
-                      className=" cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className="group cursor-pointer p-2 sm:p-3 rounded-full text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20 transition-all duration-200 hover:scale-105 active:scale-95"
                       onClick={handlePrevious}
+                      aria-label="Previous"
                     >
-                      <SkipBack className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                      <SkipBack 
+                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110" 
+                        weight="fill"
+                      />
                     </button>
 
                     {/* Play / Pause */}
                     <button
-                      className=" cursor-pointer p-[clamp(1rem,4vw,2rem)] sm:p-4 rounded-full transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110"
+                      className="group cursor-pointer w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                       onClick={handlePlayPause}
+                      aria-label={isPlaying ? "Pause" : "Play"}
                     >
                       {isPlaying ? (
-                        <Pause className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
+                        <Pause 
+                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-transform duration-200 group-hover:scale-110" 
+                          weight="fill"
+                        />
                       ) : (
-                        <Play className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
+                        <Play 
+                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 translate-x-[1px] transition-transform duration-200 group-hover:scale-110" 
+                          weight="fill"
+                        />
                       )}
                     </button>
 
                     {/* Next */}
                     <button
-                      className=" cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className="group cursor-pointer p-2 sm:p-3 rounded-full text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20 transition-all duration-200 hover:scale-105 active:scale-95"
                       onClick={handleNext}
+                      aria-label="Next"
                     >
-                      <SkipForward className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                      <SkipForward 
+                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110" 
+                        weight="fill"
+                      />
                     </button>
 
-                    {/* Repeat */}
+                    {/* Repeat Current Song */}
                     <button
-                      className=" cursor-pointer relative p-2 sm:p-3 rounded-full transition-all duration-300 bg-secondary hover:bg-accent hover:scale-110"
+                      className={`group cursor-pointer relative p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
+                        repeatCurrentSong
+                          ? "text-primary bg-primary/10 shadow-sm"
+                          : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
+                      }`}
                       onClick={toggleRepeat}
+                      aria-label={repeatCurrentSong ? "Repeat current song on" : "Repeat current song off"}
+                      title={repeatCurrentSong ? "Turn off repeat current song" : "Repeat current song"}
                     >
-                      <Repeat className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
-                      {repeatMode === "one" && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-xs text-primary-foreground font-bold">
+                      <Repeat 
+                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110" 
+                        weight={repeatCurrentSong ? "fill" : "regular"}
+                      />
+                      {repeatCurrentSong && (
+                        <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[8px] sm:text-[10px] font-bold font-spotify shadow-sm">
                           1
                         </span>
                       )}
@@ -288,9 +472,9 @@ const MusicPlayer = () => {
           </div>
 
           {/* PLAYLIST */}
-          <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300 tracking-widest">
+          <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
-              <h3 className="text-[clamp(1.5rem,6vw,2rem)] font-semibold font-lobster cursor-pointer">Playlist</h3>
+              <h3 className="text-[clamp(1.5rem,6vw,2rem)] font-bold font-spotify-display cursor-pointer tracking-tight">Playlist</h3>
               <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" />
             </div>
             <div
