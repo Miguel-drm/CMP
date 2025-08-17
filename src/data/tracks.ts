@@ -8,6 +8,7 @@ import NewSlang from "../assets/Album/New Slang.png"
 import LetDown from "../assets/Album/Let Down.png"
 import ilysb from "../assets/Album/ILYSB.png"
 import BackToFriends from "../assets/Album/BacktoFriends.png"
+import Rebound from "../assets/Album/Rebound.png"
 
 // MP3 Audio
 import AboutYouAudio from "../assets/Audio/About You.mp3"
@@ -19,12 +20,14 @@ import New_Slang from "../assets/Audio/New Slang.mp3"
 import Let_Down from "../assets/Audio/Let Down.mp3"
 import ILYSB from "../assets/Audio/ILYSB.mp3"
 import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
+import ReboundAud from "../assets/Audio/Rebound.mp3"
 
 // MP4 Video
 import AboutYouVid from "../assets/Video/AboutYou.mp4"
 import BackToFriendsVid from "../assets/Video/Back to Friends.mp4"
 import LetDownVid from "../assets/Video/LetDown.mp4"
 import MultoVid from "../assets/Video/Multo_Video.mp4"
+import Angelo from "../assets/Video/Angelo.mp4"
 
 export const tracks = [
   {
@@ -126,5 +129,17 @@ export const tracks = [
     videoUrl: BackToFriendsVid,
     showVideoSecond: 1 // Show video at 1:20
   },
+  {
+    id: 10,
+    title: "Rebound",
+    artist: "Silent Sanctuary",
+    album: "Album 9",
+    duration: 281,
+    coverUrl: Rebound,
+    audioUrl: ReboundAud,
+    videoUrl: Angelo,
+    showVideoSecond: 1 // Show video at 30 seconds
+  }
+  
 
 ];

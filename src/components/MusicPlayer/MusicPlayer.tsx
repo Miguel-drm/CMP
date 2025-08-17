@@ -33,7 +33,7 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-    const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Simplified repeat: false = repeat queue (default), true = repeat current song
   const [repeatCurrentSong, setRepeatCurrentSong] = useState(false);
@@ -482,14 +482,16 @@ const MusicPlayer = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
           {/* PLAYER PANEL */}
-          <div className="lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
+          <div className=" relative lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
             {/* Track Info */}
             <div className="flex flex-col md:flex-row gap-8 mt-13 lg:mt-0">
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
-                    <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center">
-                      <div 
+                    
+                    <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center p-5">
+                      <img src={currentTrack.coverUrl} alt={currentTrack.album} className="absolute inset-0 object-cover opacity-20 w-full h-full rounded-xl" />
+                      <div
                         ref={albumCoverRef}
                         className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden"
                       >
