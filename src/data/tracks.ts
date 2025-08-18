@@ -25,7 +25,7 @@ import CryAudio from "../assets/Audio/Cry.mp3"
 // import ReboundAud from "../assets/Audio/Rebound.mp3"
 
 // Artist Poster 
-import The1975Poster from "../assets/album/ArtistPoster/The1975Poster.jpg"
+import The1975Poster from "../assets/Album/ArtistPoster/The1975Poster.jpg"
 
 
 export const tracks = [
