@@ -53,25 +53,20 @@ const MusicPlayer = () => {
 
   // Video control functions
   const showBackgroundVideo = useCallback(() => {
-    console.log('showBackgroundVideo called');
     const video = backgroundVideoRef.current;
-    console.log('Video element:', video);
-    console.log('Video URL:', currentTrack.videoUrl);
+
     
     if (video && currentTrack.videoUrl) {
-      console.log('Setting video src to:', currentTrack.videoUrl);
       video.src = currentTrack.videoUrl;
       video.currentTime = Math.max(0, currentTime - currentTrack.showVideoSecond);
       
       if (isPlaying) {
-        console.log('Playing video');
         video.play().catch((error) => {
           console.error('Error playing video:', error);
         });
       }
       
       setShowVideo(true);
-      console.log('Set showVideo to true');
       
       // Ultra-smooth GSAP fade-in animation
       const tl = gsap.timeline();
@@ -105,8 +100,6 @@ const MusicPlayer = () => {
         duration: 0.6,
         ease: "sine.inOut"
       }, "-=0.3");
-    } else {
-      console.log('Video element or videoUrl missing:', { video: !!video, videoUrl: currentTrack.videoUrl });
     }
   }, [currentTrack, currentTime, isPlaying]);
 
@@ -151,21 +144,11 @@ const MusicPlayer = () => {
 
   // Check if video should be shown based on current time
   useEffect(() => {
-    console.log('Video check:', {
-      currentTime,
-      showVideoSecond: currentTrack.showVideoSecond,
-      videoUrl: currentTrack.videoUrl,
-      showVideo,
-      isPlaying,
-      shouldShow: currentTime >= currentTrack.showVideoSecond && !showVideo && isPlaying
-    });
     
     if (currentTrack.videoUrl && currentTrack.showVideoSecond) {
       if (currentTime >= currentTrack.showVideoSecond && !showVideo && isPlaying) {
-        console.log('Showing video at', currentTime);
         showBackgroundVideo();
       } else if (currentTime < currentTrack.showVideoSecond && showVideo) {
-        console.log('Hiding video at', currentTime);
         hideBackgroundVideo();
       }
     }
@@ -463,7 +446,7 @@ const MusicPlayer = () => {
     <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
 
       {/* Background Video */}
-      {true && (
+      {/* {true && (
         <video
           ref={backgroundVideoRef}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 pointer-events-none z-0"
@@ -471,10 +454,10 @@ const MusicPlayer = () => {
           loop
           playsInline style={{opacity: showVideo ? 0.6 : 0}}
         />
-      )}
+      )} */}
 
       {/* Background Overlay */}
-      <div className="absolute inset-0 bg-background/40 backdrop-blur-sm z-[1]" />
+      {/* <div className="absolute inset-0 bg-background/40 backdrop-blur-sm z-[1]" /> */}
 
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" />
 
@@ -490,7 +473,6 @@ const MusicPlayer = () => {
                   <div>
                     
                     <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center p-5">
-                      <img src={currentTrack.coverUrl} alt={currentTrack.album} className="absolute inset-0 object-cover opacity-20 w-full h-full rounded-xl" />
                       <div
                         ref={albumCoverRef}
                         className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden"
