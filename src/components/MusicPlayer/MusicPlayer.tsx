@@ -742,7 +742,7 @@ const MusicPlayer = () => {
                               <div>
                                 <Card>
                                   <CardContent
-                                    className={`flex aspect-[2/3] items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
+                                    className={`flex aspect-video items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
                                     onClick={() => {
                                       if (selectedArtist === item.artist) {
                                         setSelectedArtist(null);
@@ -763,7 +763,7 @@ const MusicPlayer = () => {
                                       setIsArtistDrawerOpen(false);
                                     }}
                                   >
-                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-cover" loading="lazy" decoding="async" />
+                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-cover size-full" loading="lazy" decoding="async" />
                                   </CardContent>
                                 </Card>
                               </div>
