@@ -682,7 +682,7 @@ const MusicPlayer = () => {
             <div className="flex items-center justify-between mb-6 mx-6">
               <Drawer open={isArtistDrawerOpen} onOpenChange={setIsArtistDrawerOpen}>
                 <DrawerTrigger>
-                  <h3 className="text-xl font-bold cursor-pointer">Select Artist</h3>
+                  <h3 className="text-xl font-bold cursor-pointer">{selectedArtist ? selectedArtist : "Select Artist"}</h3>
                 </DrawerTrigger>
                 <DrawerContent>
                   <DrawerContent>
@@ -700,7 +700,7 @@ const MusicPlayer = () => {
                               <div>
                                 <Card>
                                   <CardContent
-                                    className={`flex aspect-square items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
+                                    className={`flex aspect-[2/3] items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
                                     onClick={() => {
                                       if (selectedArtist === item.artist) {
                                         setSelectedArtist(null);
@@ -721,7 +721,7 @@ const MusicPlayer = () => {
                                       setIsArtistDrawerOpen(false);
                                     }}
                                   >
-                                    <img src={item.poster as string} alt={item.artist} className="w-full h-full object-cover" />
+                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-cover" />
                                   </CardContent>
                                 </Card>
                               </div>

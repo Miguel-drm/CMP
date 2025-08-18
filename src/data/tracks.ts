@@ -9,7 +9,9 @@ import LetDown from "/Album/Let Down.png"
 import ilysb from "/Album/ILYSB.png"
 import BackToFriends from "/Album/BacktoFriends.png"
 import Cry from "/Album/Cry.png"
-// import Rebound from "/Album/Rebound.png"
+import MakeItToTheMorning from "/Album/MakeItToTheMorning.png"
+import Dreamin from "/Album/Dreamin.png"
+
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/About You.mp3"
@@ -22,10 +24,12 @@ import Let_Down from "/Audio/Let Down.mp3"
 import ILYSB from "/Audio/ILYSB.mp3"
 import Back_To_Friends from "/Audio/Back_To_Friends.mp3"
 import CryAudio from "/Audio/Cry.mp3"
-// import ReboundAud from "../assets/Audio/Rebound.mp3"
+import MakeItToTheMorningAudio from "/Audio/MakeItToTheMorning.mp3"
+import DreaminAudio from "/Audio/Dreamin.mp3"
 
 // Artist Poster 
 import The1975Poster from "/Album/ArtistPoster/The1975Poster.jpg"
+import PartyNextDoorPoster from "/Album/ArtistPoster/PartyNextDoor.jpg"
 
 
 export const tracks = [
@@ -148,18 +152,31 @@ export const tracks = [
     audioUrl: CryAudio,
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 11,
+    title: "Make It To The Morning",
+    artist: "Party Next Door",
+    artistPoster: PartyNextDoorPoster,
+    album: "Album 10",
+    duration: 168,
+    coverUrl: MakeItToTheMorning,
+    audioUrl: MakeItToTheMorningAudio,
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 12,
+    title: "Dreamin",
+    artist: "Party Next Door",
+    artistPoster: PartyNextDoorPoster,
+    album: "Album 11",
+    duration: 147,
+    coverUrl: Dreamin,
+    audioUrl: DreaminAudio,
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
   }
-  // {
-  //   id: 10,
-  //   title: "Rebound",
-  //   artist: "Silent Sanctuary",
-  //   album: "Album 9",
-  //   duration: 281,
-  //   coverUrl: Rebound,
-  //   audioUrl: ReboundAud,
-  //   videoUrl: "https://example.com/videos/rebound.mp4", // Replace with actual video URL
-  //   showVideoSecond: 1 // Show video at 30 seconds
-  // }
   
 
 ];
