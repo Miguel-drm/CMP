@@ -11,7 +11,7 @@ import Playlist from "../Playlist/playlist";
 import { tracks } from "../../data/tracks";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
-import Nailong from "../../assets/nailong.png";
+import Nailong from "/nailong.png";
 import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
