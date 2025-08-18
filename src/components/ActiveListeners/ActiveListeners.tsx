@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type PresenceMessage =
-  | { type: "join"; id: string; ts: number }
-  | { type: "leave"; id: string; ts: number }
-  | { type: "heartbeat"; id: string; ts: number };
+// Server-backed presence; no local message types needed
 
-const CHANNEL_NAME = "caelven-presence";
-const HEARTBEAT_MS = 5000;
-const STALE_MS = 12000;
+const HEARTBEAT_MS = 10000; // server heartbeat
+const POLL_MS = 8000; // poll server for current count
 
 function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -15,25 +11,30 @@ function generateId() {
 
 export default function ActiveListeners() {
   const selfIdRef = useRef<string>(generateId());
-  const channelRef = useRef<BroadcastChannel | null>(null);
-  const peersRef = useRef<Map<string, number>>(new Map());
   const heartbeatTimerRef = useRef<number | null>(null);
-  const pruneTimerRef = useRef<number | null>(null);
+  const pollTimerRef = useRef<number | null>(null);
   const [count, setCount] = useState<number>(0);
   const [isListening, setIsListening] = useState<boolean>(false);
 
-  const updateCount = () => {
-    setCount(peersRef.current.size);
-  };
+  // count is polled from server; no local aggregator
 
-  const post = (msg: PresenceMessage) => {
-    if (!channelRef.current) return;
-    try {
-      channelRef.current.postMessage(msg);
-    } catch {
-      // no-op
-    }
-  };
+  const apiUrl = "/.netlify/functions/presence";
+  const server = useMemo(() => ({
+    async join(id: string) {
+      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "join", id }) });
+    },
+    async heartbeat(id: string) {
+      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "heartbeat", id }) });
+    },
+    async leave(id: string) {
+      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "leave", id }) });
+    },
+    async getCount() {
+      const res = await fetch(apiUrl, { method: "GET" });
+      const data = await res.json().catch(() => ({ count: 0 }));
+      return Number(data.count || 0);
+    },
+  }), [apiUrl]);
 
   // Detect the app's audio element and track play/pause
   useEffect(() => {
@@ -50,85 +51,55 @@ export default function ActiveListeners() {
 
     // initial state
     // 'paused' false and currentTime > 0 typically means playing
-    if (!audio.paused) setIsListening(true);
+    if (!audio.paused && audio.currentTime > 0) setIsListening(true);
 
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, []);
+  }, [server]);
 
-  // Setup presence channel
+  // Poll current count from server
   useEffect(() => {
-    const channel = new BroadcastChannel(CHANNEL_NAME);
-    channelRef.current = channel;
-
-    const onMessage = (evt: MessageEvent<PresenceMessage>) => {
-      const data = evt.data;
-      if (!data || !("type" in data)) return;
-      const { id, ts } = data as PresenceMessage & { id: string; ts: number };
-
-      if (data.type === "join" || data.type === "heartbeat") {
-        peersRef.current.set(id, ts);
-        updateCount();
-      } else if (data.type === "leave") {
-        peersRef.current.delete(id);
-        updateCount();
-      }
+    let mounted = true;
+    const poll = async () => {
+      const c = await server.getCount().catch(() => 0);
+      if (mounted) setCount(c);
     };
-
-    channel.addEventListener("message", onMessage as EventListener);
-
-    // Prune stale peers periodically
-    pruneTimerRef.current = window.setInterval(() => {
-      const now = Date.now();
-      let changed = false;
-      peersRef.current.forEach((lastSeen, id) => {
-        if (now - lastSeen > STALE_MS) {
-          peersRef.current.delete(id);
-          changed = true;
-        }
-      });
-      if (changed) updateCount();
-    }, 3000);
-
+    poll();
+    pollTimerRef.current = window.setInterval(poll, POLL_MS);
     return () => {
-      if (pruneTimerRef.current) window.clearInterval(pruneTimerRef.current);
-      channel.removeEventListener("message", onMessage as EventListener);
-      channel.close();
+      mounted = false;
+      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
     };
-  }, []);
+  }, [server]);
 
   // Announce join/leave + heartbeat based on isListening
   useEffect(() => {
     const id = selfIdRef.current;
-    if (!channelRef.current) return;
-
     if (isListening) {
-      // add self locally immediately
-      peersRef.current.set(id, Date.now());
-      updateCount();
-      post({ type: "join", id, ts: Date.now() });
+      // join server presence
+      server.join(id).finally(() => {});
       // start heartbeat
+      if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = window.setInterval(() => {
-        post({ type: "heartbeat", id, ts: Date.now() });
+        server.heartbeat(id).finally(() => {});
       }, HEARTBEAT_MS);
     } else {
       // stop heartbeat
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = null;
-      // remove self and notify
-      peersRef.current.delete(id);
-      updateCount();
-      post({ type: "leave", id, ts: Date.now() });
+      // leave server presence
+      server.leave(id).finally(() => {});
     }
 
     return () => {
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = null;
     };
-  }, [isListening]);
+  }, [isListening, server]);
 
   const label = useMemo(() => (count === 1 ? "listener" : "listeners"), [count]);
 
