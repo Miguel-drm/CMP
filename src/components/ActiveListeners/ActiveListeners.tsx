@@ -1,46 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { getFirebaseDatabase, onDisconnect, onValue, ref, serverTimestamp, set, update } from "@/lib/firebase";
 
-// Server-backed presence; no local message types needed
-
-const HEARTBEAT_MS = 10000; // server heartbeat
-const POLL_MS = 8000; // poll server for current count
+const HEARTBEAT_MS = 10000; // refresh "lastSeen"
 
 function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export default function ActiveListeners() {
+  const db = getFirebaseDatabase();
   const selfIdRef = useRef<string>(generateId());
   const heartbeatTimerRef = useRef<number | null>(null);
-  const pollTimerRef = useRef<number | null>(null);
   const [count, setCount] = useState<number>(0);
   const [isListening, setIsListening] = useState<boolean>(false);
-
-  // count is polled from server; no local aggregator
-
-  const apiUrl = "/.netlify/functions/presence";
-  const server = useMemo(() => ({
-    async join(id: string): Promise<number> {
-      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "join", id }) });
-      const data = await res.json().catch(() => ({ count: 0 }));
-      return Number(data.count || 0);
-    },
-    async heartbeat(id: string): Promise<number> {
-      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "heartbeat", id }) });
-      const data = await res.json().catch(() => ({ count: 0 }));
-      return Number(data.count || 0);
-    },
-    async leave(id: string): Promise<number> {
-      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "leave", id }) });
-      const data = await res.json().catch(() => ({ count: 0 }));
-      return Number(data.count || 0);
-    },
-    async getCount(): Promise<number> {
-      const res = await fetch(apiUrl, { method: "GET" });
-      const data = await res.json().catch(() => ({ count: 0 }));
-      return Number(data.count || 0);
-    },
-  }), [apiUrl]);
 
   // Detect audio play/pause globally, even if the element mounts later
   useEffect(() => {
@@ -61,7 +33,6 @@ export default function ActiveListeners() {
     document.addEventListener("pause", onPause, true);
     document.addEventListener("ended", onEnded, true);
 
-    // initial check (if audio already exists and is playing)
     const audio = document.querySelector("audio");
     if (audio instanceof HTMLAudioElement && !audio.paused && audio.currentTime > 0) {
       setIsListening(true);
@@ -72,54 +43,43 @@ export default function ActiveListeners() {
       document.removeEventListener("pause", onPause, true);
       document.removeEventListener("ended", onEnded, true);
     };
-  }, [server]);
+  }, []);
 
-  // Poll current count from server
+  // Live subscription to count of online listeners
   useEffect(() => {
-    let mounted = true;
-    const poll = async () => {
-      const c = await server.getCount().catch(() => 0);
-      if (mounted) setCount(c);
-    };
-    poll();
-    pollTimerRef.current = window.setInterval(poll, POLL_MS);
-    // also poll once right after join/leave to reflect fast
-    const visibility = () => {
-      if (document.visibilityState === "visible") poll();
-    };
-    document.addEventListener("visibilitychange", visibility);
-    return () => {
-      mounted = false;
-      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
-      pollTimerRef.current = null;
-      document.removeEventListener("visibilitychange", visibility);
-    };
-  }, [server]);
+    const onlineRef = ref(db, "presence/online");
+    return onValue(onlineRef, (snap) => {
+      const val = snap.val() as Record<string, any> | null;
+      setCount(val ? Object.keys(val).length : 0);
+    });
+  }, [db]);
 
-  // Announce join/leave + heartbeat based on isListening
+  // Join/leave + heartbeat with onDisconnect cleanup
   useEffect(() => {
     const id = selfIdRef.current;
+    const userRef = ref(db, `presence/online/${id}`);
     if (isListening) {
-      // join server presence
-      server.join(id).then((c) => setCount(c)).catch(() => {});
-      // start heartbeat
+      // Mark online with server timestamps
+      set(userRef, { joinedAt: serverTimestamp(), lastSeen: serverTimestamp() }).catch(() => {});
+      // Ensure automatic cleanup if connection drops
+      onDisconnect(userRef).remove().catch(() => {});
+      // Heartbeat to keep lastSeen fresh
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = window.setInterval(() => {
-        server.heartbeat(id).then((c) => setCount(c)).catch(() => {});
+        update(userRef, { lastSeen: serverTimestamp() }).catch(() => {});
       }, HEARTBEAT_MS);
     } else {
-      // stop heartbeat
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = null;
-      // leave server presence
-      server.leave(id).then((c) => setCount(c)).catch(() => {});
+      // Remove presence record
+      set(userRef, null).catch(() => {});
     }
 
     return () => {
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = null;
     };
-  }, [isListening, server]);
+  }, [db, isListening]);
 
   const label = useMemo(() => (count === 1 ? "listener" : "listeners"), [count]);
 

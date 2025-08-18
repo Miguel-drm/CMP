@@ -39,6 +39,35 @@ export default tseslint.config([
 ])
 ```
 
+## Firebase Realtime Database presence
+
+Environment variables (e.g. create `.env.local`):
+
+```
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_DB_URL=https://your_project-default-rtdb.firebaseio.com
+VITE_FIREBASE_PROJECT_ID=your_project
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=000000000000
+VITE_FIREBASE_APP_ID=1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxx
+```
+
+Suggested Realtime Database rules for presence during development:
+
+```
+{
+  "rules": {
+    "presence": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
+```
+
+The `ActiveListeners` component writes to `presence/online/{sessionId}` with `onDisconnect` cleanup and subscribes to the count live.
+
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
