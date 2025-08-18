@@ -21,6 +21,8 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
 } from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -513,6 +515,27 @@ const MusicPlayer = () => {
       : baseFilteredIndices
   ), [isShuffled, shuffledIndices, baseFilteredIndices]);
 
+  // Preload next track's audio and image for smoother transitions
+  useEffect(() => {
+    const filtered = getFilteredIndices();
+    if (filtered.length === 0) return;
+    const pos = filtered.indexOf(currentTrackIndex);
+    const nextIndex = pos === -1 ? filtered[0] : filtered[(pos + 1) % filtered.length];
+    const nextTrack = tracks[nextIndex];
+    if (!nextTrack) return;
+
+    // Preload image
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.src = nextTrack.coverUrl;
+
+    // Preload audio metadata by creating a detached audio element
+    const audio = document.createElement('audio');
+    audio.preload = 'metadata';
+    audio.src = nextTrack.audioUrl;
+  }, [currentTrackIndex, getFilteredIndices]);
+
   return (
     <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
 
@@ -702,8 +725,10 @@ const MusicPlayer = () => {
                   <h3 className="text-xl font-bold cursor-pointer">{selectedArtist ? selectedArtist : "Select Artist"}</h3>
                 </DrawerTrigger>
                 <DrawerContent>
-                  <DrawerContent>
-                    <div className="w-full flex justify-center items-center p-5">
+                  <div className="w-full flex flex-col items-center p-5">
+                    <DrawerTitle className="mb-2">Select Artist</DrawerTitle>
+                    <DrawerDescription className="mb-4">Tap an artist poster to filter the playlist</DrawerDescription>
+                    <div className="w-full flex justify-center items-center">
                       <Carousel className="w-full max-w-xs">
                         <CarouselContent>
                           {Array.from(
@@ -749,7 +774,7 @@ const MusicPlayer = () => {
                         <CarouselNext />
                       </Carousel>
                     </div>
-                  </DrawerContent>
+                  </div>
                 </DrawerContent>
               </Drawer>
               <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" loading="lazy" decoding="async" />

@@ -18,6 +18,8 @@ interface PlaylistProps {
   onClick: () => void;
 }
 
+import React from 'react'
+
 const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
     return (
         <div
@@ -49,4 +51,13 @@ const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
     )
 }
 
-export default Playlist
+export default React.memo(Playlist, (prev, next) => {
+  return (
+    prev.track.id === next.track.id &&
+    prev.isActive === next.isActive &&
+    prev.track.title === next.track.title &&
+    prev.track.artist === next.track.artist &&
+    prev.track.coverUrl === next.track.coverUrl &&
+    prev.track.duration === next.track.duration
+  )
+})
