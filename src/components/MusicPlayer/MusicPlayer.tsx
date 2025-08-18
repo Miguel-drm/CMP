@@ -9,7 +9,7 @@ import {
 import ProgressBar from "../ProgressBar/progressBar";
 import Playlist from "../Playlist/playlist";
 import { tracks } from "../../data/tracks";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { gsap } from "gsap";
 import Nailong from "/nailong.png";
 import {
@@ -29,7 +29,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 
 
 const MusicPlayer = () => {
@@ -57,6 +57,18 @@ const MusicPlayer = () => {
   const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isArtistDrawerOpen, setIsArtistDrawerOpen] = useState(false);
+
+  // Memoized derived data
+  const allIndices = useMemo(() => Array.from({ length: tracks.length }, (_, i) => i), []);
+  // const uniqueArtists = useMemo(() => {
+  //   const map = new Map<string, { artist: string; poster: string }>();
+  //   for (const t of tracks) {
+  //     if (t.artistPoster) {
+  //       map.set(t.artist.trim(), { artist: t.artist.trim(), poster: t.artistPoster as string });
+  //     }
+  //   }
+  //   return Array.from(map.values());
+  // }, []);
 
   const currentTrack = tracks[currentTrackIndex];
 
@@ -249,11 +261,10 @@ const MusicPlayer = () => {
   }, []);
 
   const getFilteredIndices = useCallback(() => {
-    const all = Array.from({ length: tracks.length }, (_, i) => i);
     return selectedArtist
-      ? all.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
-      : all;
-  }, [selectedArtist]);
+      ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+      : allIndices;
+  }, [selectedArtist, allIndices]);
 
   const getNextShuffledTrack = useCallback(() => {
     const baseIndices = getFilteredIndices();
@@ -491,13 +502,16 @@ const MusicPlayer = () => {
   }, [handleTrackEnd]);
 
   // Determine the order to display tracks in the playlist panel
-  const allIndices = Array.from({ length: tracks.length }, (_, i) => i);
-  const baseFilteredIndices = selectedArtist
-    ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
-    : allIndices;
-  const displayedIndices = (isShuffled && shuffledIndices.length > 0)
-    ? shuffledIndices.filter((i) => baseFilteredIndices.includes(i))
-    : baseFilteredIndices;
+  const baseFilteredIndices = useMemo(() => (
+    selectedArtist
+      ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+      : allIndices
+  ), [selectedArtist, allIndices]);
+  const displayedIndices = useMemo(() => (
+    (isShuffled && shuffledIndices.length > 0)
+      ? shuffledIndices.filter((i) => baseFilteredIndices.includes(i))
+      : baseFilteredIndices
+  ), [isShuffled, shuffledIndices, baseFilteredIndices]);
 
   return (
     <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
@@ -539,6 +553,9 @@ const MusicPlayer = () => {
                           src={currentTrack.coverUrl}
                           className="w-full h-full object-cover opacity-100"
                           alt={currentTrack.album}
+                          fetchPriority="high"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
                       <div className="flex flex-1 justify-center lg:text-left">
@@ -721,7 +738,7 @@ const MusicPlayer = () => {
                                       setIsArtistDrawerOpen(false);
                                     }}
                                   >
-                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-cover" />
+                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-cover" loading="lazy" decoding="async" />
                                   </CardContent>
                                 </Card>
                               </div>
@@ -735,7 +752,7 @@ const MusicPlayer = () => {
                   </DrawerContent>
                 </DrawerContent>
               </Drawer>
-              <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" />
+              <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" loading="lazy" decoding="async" />
             </div>
             <div
               className="space-y-3 h-[clamp(512px,40vh,100vh)] overflow-y-auto overflow-x-hidden 

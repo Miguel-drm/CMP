@@ -29,7 +29,7 @@ const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
             <div className="relative flex-shrink-0">
                 <div className='w-12 h-12 rounded-full overflow-hidden'>
                     {/* You can use <img src={track.coverUrl} alt={track.title} /> here */}
-                    <img src={track.coverUrl} alt={track.title} className="w-full h-full object-cover" />
+                    <img src={track.coverUrl} alt={track.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 {/* Play Pause Overlay */}
                 {/* <div className={`absolute inset-0 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0  bg-black/40'}`}>
