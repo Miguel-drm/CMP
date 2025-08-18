@@ -17,12 +17,31 @@ import {
   ScrollVelocityRow,
 } from "@/components/magicui/scroll-based-velocity";
 // import { Ripple } from "../magicui/ripple";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+
 
 const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
-  
+
 
   // Animation refs
   const albumCoverRef = useRef<HTMLDivElement>(null);
@@ -44,7 +63,7 @@ const MusicPlayer = () => {
 
   const currentTrack = tracks[currentTrackIndex];
 
-  
+
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -58,51 +77,51 @@ const MusicPlayer = () => {
   const showBackgroundVideo = useCallback(() => {
     const video = backgroundVideoRef.current;
 
-    
+
     if (video && currentTrack.videoUrl) {
       video.src = currentTrack.videoUrl;
       video.currentTime = Math.max(0, currentTime - currentTrack.showVideoSecond);
-      
+
       if (isPlaying) {
         video.play().catch((error) => {
           console.error('Error playing video:', error);
         });
       }
-      
+
       setShowVideo(true);
-      
+
       // Ultra-smooth GSAP fade-in animation
       const tl = gsap.timeline();
-      tl.set(backgroundVideoRef.current, { 
-        opacity: 0, 
+      tl.set(backgroundVideoRef.current, {
+        opacity: 0,
         scale: 1.02,
         filter: "blur(8px) brightness(1.1)",
         transformOrigin: "center center"
       })
-      .to(backgroundVideoRef.current, {
-        opacity: 0.2,
-        duration: 0.4,
-        ease: "sine.out"
-      })
-      .to(backgroundVideoRef.current, {
-        opacity: 0.5,
-        scale: 1.01,
-        filter: "blur(4px) brightness(1.05)",
-        duration: 0.8,
-        ease: "power2.out"
-      }, "-=0.2")
-      .to(backgroundVideoRef.current, {
-        opacity: 0.65,
-        scale: 1,
-        filter: "blur(0px) brightness(1)",
-        duration: 1.2,
-        ease: "power1.out"
-      }, "-=0.4")
-      .to(backgroundVideoRef.current, {
-        opacity: 0.7,
-        duration: 0.6,
-        ease: "sine.inOut"
-      }, "-=0.3");
+        .to(backgroundVideoRef.current, {
+          opacity: 0.2,
+          duration: 0.4,
+          ease: "sine.out"
+        })
+        .to(backgroundVideoRef.current, {
+          opacity: 0.5,
+          scale: 1.01,
+          filter: "blur(4px) brightness(1.05)",
+          duration: 0.8,
+          ease: "power2.out"
+        }, "-=0.2")
+        .to(backgroundVideoRef.current, {
+          opacity: 0.65,
+          scale: 1,
+          filter: "blur(0px) brightness(1)",
+          duration: 1.2,
+          ease: "power1.out"
+        }, "-=0.4")
+        .to(backgroundVideoRef.current, {
+          opacity: 0.7,
+          duration: 0.6,
+          ease: "sine.inOut"
+        }, "-=0.3");
     }
   }, [currentTrack, currentTime, isPlaying]);
 
@@ -117,37 +136,37 @@ const MusicPlayer = () => {
         duration: 0.4,
         ease: "sine.inOut"
       })
-      .to(backgroundVideoRef.current, {
-        opacity: 0.15,
-        scale: 0.98,
-        filter: "blur(6px) brightness(0.7)",
-        duration: 0.6,
-        ease: "power2.inOut"
-      }, "-=0.2")
-      .to(backgroundVideoRef.current, {
-        opacity: 0,
-        scale: 0.96,
-        filter: "blur(12px) brightness(0.5)",
-        duration: 0.8,
-        ease: "power3.in",
-        onComplete: () => {
-          video.pause();
-          video.src = "";
-          setShowVideo(false);
-          // Reset properties for next time
-          gsap.set(backgroundVideoRef.current, {
-            scale: 1,
-            filter: "blur(0px) brightness(1)",
-            transformOrigin: "center center"
-          });
-        }
-      }, "-=0.3");
+        .to(backgroundVideoRef.current, {
+          opacity: 0.15,
+          scale: 0.98,
+          filter: "blur(6px) brightness(0.7)",
+          duration: 0.6,
+          ease: "power2.inOut"
+        }, "-=0.2")
+        .to(backgroundVideoRef.current, {
+          opacity: 0,
+          scale: 0.96,
+          filter: "blur(12px) brightness(0.5)",
+          duration: 0.8,
+          ease: "power3.in",
+          onComplete: () => {
+            video.pause();
+            video.src = "";
+            setShowVideo(false);
+            // Reset properties for next time
+            gsap.set(backgroundVideoRef.current, {
+              scale: 1,
+              filter: "blur(0px) brightness(1)",
+              transformOrigin: "center center"
+            });
+          }
+        }, "-=0.3");
     }
   }, []);
 
   // Check if video should be shown based on current time
   useEffect(() => {
-    
+
     if (currentTrack.videoUrl && currentTrack.showVideoSecond) {
       if (currentTime >= currentTrack.showVideoSecond && !showVideo && isPlaying) {
         showBackgroundVideo();
@@ -184,32 +203,32 @@ const MusicPlayer = () => {
       duration: 0.3,
       ease: "power2.out"
     })
-    // Reset positions for incoming animation
-    .set(albumCoverRef.current, { x: -100, scale: 0.8 })
-    .set([titleRef.current, artistRef.current], { y: -30 })
-    .set(scrollingTextRef.current, { y: 20, scale: 0.95 })
-    // Animate in new elements
-    .to(albumCoverRef.current, {
-      x: 0,
-      scale: 1,
-      opacity: 1,
-      duration: 0.6,
-      ease: "back.out(1.7)"
-    }, "+=0.1")
-    .to([titleRef.current, artistRef.current], {
-      y: 0,
-      opacity: 1,
-      duration: 0.5,
-      ease: "power2.out",
-      stagger: 0.1
-    }, "-=0.4")
-    .to(scrollingTextRef.current, {
-      y: 0,
-      scale: 1,
-      opacity: 1,
-      duration: 0.4,
-      ease: "power2.out"
-    }, "-=0.2");
+      // Reset positions for incoming animation
+      .set(albumCoverRef.current, { x: -100, scale: 0.8 })
+      .set([titleRef.current, artistRef.current], { y: -30 })
+      .set(scrollingTextRef.current, { y: 20, scale: 0.95 })
+      // Animate in new elements
+      .to(albumCoverRef.current, {
+        x: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      }, "+=0.1")
+      .to([titleRef.current, artistRef.current], {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        ease: "power2.out",
+        stagger: 0.1
+      }, "-=0.4")
+      .to(scrollingTextRef.current, {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out"
+      }, "-=0.2");
 
     return tl;
   }, [showVideo, hideBackgroundVideo]);
@@ -231,7 +250,7 @@ const MusicPlayer = () => {
       setShuffledIndices(newQueue);
       return newQueue[0];
     }
-    
+
     const currentIndexInQueue = shuffledIndices.indexOf(currentTrackIndex);
     if (currentIndexInQueue === -1 || currentIndexInQueue === shuffledIndices.length - 1) {
       // Current track not in queue or at end - always repeat queue (create new shuffled queue)
@@ -239,7 +258,7 @@ const MusicPlayer = () => {
       setShuffledIndices(newQueue);
       return newQueue[0];
     }
-    
+
     return shuffledIndices[currentIndexInQueue + 1];
   }, [shuffledIndices, currentTrackIndex, createShuffledQueue]);
 
@@ -249,7 +268,7 @@ const MusicPlayer = () => {
       setShuffleHistory(prev => prev.slice(0, -1));
       return previousTrack;
     }
-    
+
     // If no history, go to a random track
     const availableIndices = Array.from({ length: tracks.length }, (_, i) => i)
       .filter(i => i !== currentTrackIndex);
@@ -261,20 +280,20 @@ const MusicPlayer = () => {
     if (isShuffled && currentTrackIndex !== index) {
       setShuffleHistory(prev => [...prev, currentTrackIndex]);
     }
-    
+
     // Only animate if track is actually changing
     const isTrackChanging = index !== currentTrackIndex;
-    
+
     setCurrentTrackIndex(index);
     setIsPlaying(true);
-    
+
     // Trigger animation if track changed
     if (isTrackChanging) {
       setTimeout(() => {
         animateTrackChange();
       }, 50);
     }
-    
+
     setTimeout(() => {
       audioRef.current?.play();
       if (videoRef.current) videoRef.current.play();
@@ -283,27 +302,27 @@ const MusicPlayer = () => {
 
   const handlePrevious = useCallback(() => {
     let newIndex: number;
-    
+
     if (isShuffled) {
       newIndex = getPreviousShuffledTrack();
     } else {
       // Always loop back to end when at beginning (queue repeat behavior)
       newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
     }
-    
+
     playTrackAtIndex(newIndex);
   }, [isShuffled, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, tracks.length]);
 
   const handleNext = useCallback(() => {
     let newIndex: number;
-    
+
     if (isShuffled) {
       newIndex = getNextShuffledTrack();
     } else {
       // Always loop back to beginning when at end (queue repeat behavior)
       newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
     }
-    
+
     playTrackAtIndex(newIndex);
   }, [isShuffled, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, tracks.length]);
 
@@ -312,17 +331,17 @@ const MusicPlayer = () => {
     if (repeatCurrentSong) {
       const audio = audioRef.current;
       const video = videoRef.current;
-      
+
       if (audio) {
         // Reset the audio position
         audio.currentTime = 0;
         setCurrentTime(0);
-        
+
         // Hide video when restarting
         if (showVideo) {
           hideBackgroundVideo();
         }
-        
+
         // Use a small delay to ensure the audio element is ready
         setTimeout(() => {
           audio.play().then(() => {
@@ -362,13 +381,13 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       if (videoRef.current) videoRef.current.currentTime = time;
-      
+
       // Sync background video
       if (backgroundVideoRef.current && showVideo) {
         const videoTime = Math.max(0, time - currentTrack.showVideoSecond);
         backgroundVideoRef.current.currentTime = videoTime;
       }
-      
+
       setCurrentTime(time);
     }
   };
@@ -381,7 +400,7 @@ const MusicPlayer = () => {
   const toggleShuffle = () => {
     const newShuffleState = !isShuffled;
     setIsShuffled(newShuffleState);
-    
+
     if (newShuffleState) {
       // Create initial shuffled queue
       const newQueue = createShuffledQueue();
@@ -400,7 +419,7 @@ const MusicPlayer = () => {
     gsap.set([albumCoverRef.current, titleRef.current, artistRef.current, scrollingTextRef.current], {
       opacity: 0
     });
-    
+
     const tl = gsap.timeline({ delay: 0.2 });
     tl.set(albumCoverRef.current, { x: -100, scale: 0.8 })
       .set([titleRef.current, artistRef.current], { y: -30 })
@@ -480,7 +499,7 @@ const MusicPlayer = () => {
               <div className="flex flex-col justify-between overflow-hidden">
                 <div className="text-center md:text-left">
                   <div>
-                    
+
                     <div className="relative flex flex-col-reverse lg:flex-row gap-5 md:justify-center md:items-center p-5">
                       <div
                         ref={albumCoverRef}
@@ -495,13 +514,13 @@ const MusicPlayer = () => {
                       </div>
                       <div className="flex flex-1 justify-center lg:text-left">
                         <div className="text-center flex justify-center flex-col lg:text-left w-full">
-                          <h2 
+                          <h2
                             ref={titleRef}
                             className="text-[clamp(1.5rem,6vw,3rem)] font-bold font-spotify-display mb-2 tracking-tight"
                           >
                             {currentTrack.title}
                           </h2>
-                          <p 
+                          <p
                             ref={artistRef}
                             className="text-muted-foreground text-[clamp(0.8rem,4vw,1.2rem)] font-medium font-spotify"
                           >
@@ -512,7 +531,7 @@ const MusicPlayer = () => {
                     </div>
                   </div>
                   {/* Scrolling Text */}
-                  <div 
+                  <div
                     ref={scrollingTextRef}
                     className="rounded-2xl w-full overflow-hidden my-5 py-3"
                   >
@@ -545,17 +564,16 @@ const MusicPlayer = () => {
                   <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8 w-full mx-auto p-2">
                     {/* Shuffle */}
                     <button
-                      className={`group cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
-                        isShuffled
-                          ? "text-primary bg-primary/10 shadow-sm"
-                          : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
-                      }`}
+                      className={`group cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${isShuffled
+                        ? "text-primary bg-primary/10 shadow-sm"
+                        : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
+                        }`}
                       onClick={toggleShuffle}
                       aria-label={`Shuffle ${isShuffled ? "on" : "off"}`}
                       title={isShuffled ? "Turn off shuffle" : "Turn on shuffle"}
                     >
-                      <Shuffle 
-                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110" 
+                      <Shuffle
+                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110"
                         weight={isShuffled ? "fill" : "regular"}
                       />
                     </button>
@@ -566,8 +584,8 @@ const MusicPlayer = () => {
                       onClick={handlePrevious}
                       aria-label="Previous"
                     >
-                      <SkipBack 
-                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110" 
+                      <SkipBack
+                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110"
                         weight="fill"
                       />
                     </button>
@@ -579,13 +597,13 @@ const MusicPlayer = () => {
                       aria-label={isPlaying ? "Pause" : "Play"}
                     >
                       {isPlaying ? (
-                        <Pause 
-                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-transform duration-200 group-hover:scale-110" 
+                        <Pause
+                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 transition-transform duration-200 group-hover:scale-110"
                           weight="fill"
                         />
                       ) : (
-                        <Play 
-                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 translate-x-[1px] transition-transform duration-200 group-hover:scale-110" 
+                        <Play
+                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 translate-x-[1px] transition-transform duration-200 group-hover:scale-110"
                           weight="fill"
                         />
                       )}
@@ -597,25 +615,24 @@ const MusicPlayer = () => {
                       onClick={handleNext}
                       aria-label="Next"
                     >
-                      <SkipForward 
-                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110" 
+                      <SkipForward
+                        className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 transition-transform duration-200 group-hover:scale-110"
                         weight="fill"
                       />
                     </button>
 
                     {/* Repeat Current Song */}
                     <button
-                      className={`group cursor-pointer relative p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
-                        repeatCurrentSong
-                          ? "text-primary bg-primary/10 shadow-sm"
-                          : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
-                      }`}
+                      className={`group cursor-pointer relative p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${repeatCurrentSong
+                        ? "text-primary bg-primary/10 shadow-sm"
+                        : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
+                        }`}
                       onClick={toggleRepeat}
                       aria-label={repeatCurrentSong ? "Repeat current song on" : "Repeat current song off"}
                       title={repeatCurrentSong ? "Turn off repeat current song" : "Repeat current song"}
                     >
-                      <Repeat 
-                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110" 
+                      <Repeat
+                        className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110"
                         weight={repeatCurrentSong ? "fill" : "regular"}
                       />
                       {repeatCurrentSong && (
@@ -634,7 +651,41 @@ const MusicPlayer = () => {
           {/* PLAYLIST */}
           <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
-              <h3 className="text-[clamp(1.5rem,6vw,2rem)] font-bold font-spotify-display cursor-pointer tracking-tight">Playlist</h3>
+              <Drawer>
+                <DrawerTrigger><h3 className="text-xl font-bold cursor-pointer">Open Playlist</h3></DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+                  </DrawerHeader>
+                  <DrawerContent>
+                    <div className="w-full flex justify-center items-center p-5">
+                      <Carousel className="w-full max-w-xs">
+                        <CarouselContent>
+                          {Array.from({ length: 5 }).map((_, index) => (
+                            <CarouselItem key={index}>
+                              <div className="p-1">
+                                <Card>
+                                  <CardContent className="flex aspect-square items-center justify-center p-6">
+                                    <span className="text-4xl font-semibold">{index + 1}</span>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                    </div>
+                  </DrawerContent>
+                  <DrawerFooter>
+                    <Button>Submit</Button>
+                    <DrawerClose>
+                      <Button variant="outline">Cancel</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
               <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" />
             </div>
             <div
