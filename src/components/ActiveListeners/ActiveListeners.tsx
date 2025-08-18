@@ -20,16 +20,22 @@ export default function ActiveListeners() {
 
   const apiUrl = "/.netlify/functions/presence";
   const server = useMemo(() => ({
-    async join(id: string) {
-      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "join", id }) });
+    async join(id: string): Promise<number> {
+      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "join", id }) });
+      const data = await res.json().catch(() => ({ count: 0 }));
+      return Number(data.count || 0);
     },
-    async heartbeat(id: string) {
-      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "heartbeat", id }) });
+    async heartbeat(id: string): Promise<number> {
+      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "heartbeat", id }) });
+      const data = await res.json().catch(() => ({ count: 0 }));
+      return Number(data.count || 0);
     },
-    async leave(id: string) {
-      await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "leave", id }) });
+    async leave(id: string): Promise<number> {
+      const res = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "leave", id }) });
+      const data = await res.json().catch(() => ({ count: 0 }));
+      return Number(data.count || 0);
     },
-    async getCount() {
+    async getCount(): Promise<number> {
       const res = await fetch(apiUrl, { method: "GET" });
       const data = await res.json().catch(() => ({ count: 0 }));
       return Number(data.count || 0);
@@ -95,18 +101,18 @@ export default function ActiveListeners() {
     const id = selfIdRef.current;
     if (isListening) {
       // join server presence
-      server.join(id).finally(() => {});
+      server.join(id).then((c) => setCount(c)).catch(() => {});
       // start heartbeat
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = window.setInterval(() => {
-        server.heartbeat(id).finally(() => {});
+        server.heartbeat(id).then((c) => setCount(c)).catch(() => {});
       }, HEARTBEAT_MS);
     } else {
       // stop heartbeat
       if (heartbeatTimerRef.current) window.clearInterval(heartbeatTimerRef.current);
       heartbeatTimerRef.current = null;
       // leave server presence
-      server.leave(id).finally(() => {});
+      server.leave(id).then((c) => setCount(c)).catch(() => {});
     }
 
     return () => {
