@@ -21,8 +21,6 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer";
@@ -652,21 +650,18 @@ const MusicPlayer = () => {
           <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
               <Drawer>
-                <DrawerTrigger><h3 className="text-xl font-bold cursor-pointer">Open Playlist</h3></DrawerTrigger>
+                <DrawerTrigger><h3 className="text-xl font-bold cursor-pointer">Select Artist</h3></DrawerTrigger>
                 <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                  </DrawerHeader>
                   <DrawerContent>
                     <div className="w-full flex justify-center items-center p-5">
                       <Carousel className="w-full max-w-xs">
                         <CarouselContent>
                           {Array.from({ length: 5 }).map((_, index) => (
                             <CarouselItem key={index}>
-                              <div className="p-1">
+                              <div>
                                 <Card>
-                                  <CardContent className="flex aspect-square items-center justify-center p-6">
-                                    <span className="text-4xl font-semibold">{index + 1}</span>
+                                  <CardContent className="flex aspect-square items-center justify-center">
+                                    <img src={tracks[index].artistPoster} alt="" className="w-full h-full object-cover" />
                                   </CardContent>
                                 </Card>
                               </div>

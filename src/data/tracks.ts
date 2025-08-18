@@ -24,12 +24,16 @@ import Back_To_Friends from "../assets/Audio/Back_To_Friends.mp3"
 import CryAudio from "../assets/Audio/Cry.mp3"
 // import ReboundAud from "../assets/Audio/Rebound.mp3"
 
+// Artist Poster 
+import The1975Poster from "../assets/album/Artist Poster/The1975Poster.jpg"
+
 
 export const tracks = [
   {
     id: 1,
     title: "About You",
     artist: "The 1975",
+    artistPoster: The1975Poster,
     album: "Album 1",
     duration: 326,
     coverUrl: AboutYou,
@@ -41,6 +45,7 @@ export const tracks = [
     id: 2,
     title: "Blue",
     artist: "Yung Kai",
+    artistPoster: "",
     album: "Album 2",
     duration: 221,
     coverUrl: Blue,
@@ -52,6 +57,7 @@ export const tracks = [
     id: 3,
     title: "Multo",
     artist: "Cup of Joe",
+    artistPoster: "",
     album: "Album 3",
     duration: 240,
     coverUrl: Multo,
@@ -63,6 +69,7 @@ export const tracks = [
     id: 4,
     title: "Sikulo",
     artist: " Maki, Angela Ken, Nhiko",
+    artistPoster: "",
     album: "Album 4",
     duration: 315,
     coverUrl: Sikulo,
@@ -74,6 +81,7 @@ export const tracks = [
     id: 5,
     title: "Ikaw Lang Patutunguhan",
     artist: "Amiel Sol",
+    artistPoster: "",
     album: "Album 5",
     duration: 341,
     coverUrl: IkawPatutunguhan,
@@ -85,6 +93,7 @@ export const tracks = [
     id: 6,
     title: "New Slang",
     artist: "The Shins",
+    artistPoster: "",
     album: "Album 6",
     duration: 232,
     coverUrl: NewSlang,
@@ -96,6 +105,7 @@ export const tracks = [
     id: 7,
     title: "Let Down",
     artist: "Radiohead",
+    artistPoster: "",
     album: "OK Computer",
     duration: 299,
     coverUrl: LetDown,
@@ -107,6 +117,7 @@ export const tracks = [
     id: 8,
     title: "ILYSB",
     artist: "LANY",
+    artistPoster: "",
     album: "Album 7",
     duration: 241,
     coverUrl: ilysb,
@@ -118,6 +129,7 @@ export const tracks = [
     id: 9,
     title: "Back to Friends",
     artist: "The 1975",
+    artistPoster: The1975Poster,
     album: "Album 8",
     duration: 201,
     coverUrl: BackToFriends,
@@ -129,6 +141,7 @@ export const tracks = [
     id: 10,
     title: "Cry",
     artist: "Cigarettes After Sex",
+    artistPoster: "",
     album: "Album 9",
     duration: 257,
     coverUrl: Cry,
