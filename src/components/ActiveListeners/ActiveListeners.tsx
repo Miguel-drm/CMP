@@ -36,27 +36,35 @@ export default function ActiveListeners() {
     },
   }), [apiUrl]);
 
-  // Detect the app's audio element and track play/pause
+  // Detect audio play/pause globally, even if the element mounts later
   useEffect(() => {
+    const onPlay = (e: Event) => {
+      const t = e.target as HTMLMediaElement | null;
+      if (t && t.tagName === "AUDIO" && !t.paused) setIsListening(true);
+    };
+    const onPause = (e: Event) => {
+      const t = e.target as HTMLMediaElement | null;
+      if (t && t.tagName === "AUDIO") setIsListening(false);
+    };
+    const onEnded = (e: Event) => {
+      const t = e.target as HTMLMediaElement | null;
+      if (t && t.tagName === "AUDIO") setIsListening(false);
+    };
+
+    document.addEventListener("play", onPlay, true);
+    document.addEventListener("pause", onPause, true);
+    document.addEventListener("ended", onEnded, true);
+
+    // initial check (if audio already exists and is playing)
     const audio = document.querySelector("audio");
-    if (!audio) return;
-
-    const onPlay = () => setIsListening(true);
-    const onPause = () => setIsListening(false);
-    const onEnded = () => setIsListening(false);
-
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-    audio.addEventListener("ended", onEnded);
-
-    // initial state
-    // 'paused' false and currentTime > 0 typically means playing
-    if (!audio.paused && audio.currentTime > 0) setIsListening(true);
+    if (audio instanceof HTMLAudioElement && !audio.paused && audio.currentTime > 0) {
+      setIsListening(true);
+    }
 
     return () => {
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
-      audio.removeEventListener("ended", onEnded);
+      document.removeEventListener("play", onPlay, true);
+      document.removeEventListener("pause", onPause, true);
+      document.removeEventListener("ended", onEnded, true);
     };
   }, [server]);
 
@@ -69,10 +77,16 @@ export default function ActiveListeners() {
     };
     poll();
     pollTimerRef.current = window.setInterval(poll, POLL_MS);
+    // also poll once right after join/leave to reflect fast
+    const visibility = () => {
+      if (document.visibilityState === "visible") poll();
+    };
+    document.addEventListener("visibilitychange", visibility);
     return () => {
       mounted = false;
       if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
       pollTimerRef.current = null;
+      document.removeEventListener("visibilitychange", visibility);
     };
   }, [server]);
 
