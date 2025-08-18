@@ -1,5 +1,6 @@
 import { WordRotate } from "../magicui/word-rotate";
 import { AnimatedThemeToggler } from "../magicui/animated-theme-toggler";
+import Listeners from "../Listeners/listeners";
 const Nav = () => {
   return (
     <>
@@ -8,6 +9,7 @@ const Nav = () => {
           <WordRotate words={["Caelven", "Music", "Playlist"]} className="text-[clamp(1.5rem,6vw,3rem)] font-bold md:text-3xl lg:text-5xl cursor-pointer font-spotify-display tracking-tight" />
         </div>
         <div className="flex items-center gap-8">
+          <Listeners />
           <AnimatedThemeToggler className="text-4xl font-bold cursor-pointer" />
         </div>
       </div>

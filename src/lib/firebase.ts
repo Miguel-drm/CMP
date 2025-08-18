@@ -22,7 +22,17 @@ const config: FirebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
 };
 
+export const isFirebaseConfigured = Boolean(
+  config.apiKey &&
+  config.appId &&
+  config.projectId &&
+  config.databaseURL
+);
+
 export function getFirebaseApp(): FirebaseApp {
+  if (!isFirebaseConfigured) {
+    throw new Error("Firebase config incomplete. Missing required env vars.");
+  }
   if (!getApps().length) {
     return initializeApp(config);
   }
