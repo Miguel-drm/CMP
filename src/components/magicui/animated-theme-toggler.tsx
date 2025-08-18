@@ -10,7 +10,12 @@ type props = {
 };
 
 export const AnimatedThemeToggler = ({ className }: props) => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored === 'dark';
+    return document.documentElement.classList.contains('dark');
+  });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const changeTheme = async () => {
     if (!buttonRef.current) return;
@@ -19,6 +24,11 @@ export const AnimatedThemeToggler = ({ className }: props) => {
       flushSync(() => {
         const dark = document.documentElement.classList.toggle("dark");
         setIsDarkMode(dark);
+        try {
+          localStorage.setItem('theme', dark ? 'dark' : 'light');
+        } catch {
+          // ignore storage errors
+        }
       });
     }).ready;
 
