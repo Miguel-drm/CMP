@@ -21,10 +21,7 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerContent,
-  DrawerFooter,
-  DrawerClose,
 } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -58,6 +55,8 @@ const MusicPlayer = () => {
   const [isShuffled, setIsShuffled] = useState(false);
   const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
   const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const [isArtistDrawerOpen, setIsArtistDrawerOpen] = useState(false);
 
   const currentTrack = tracks[currentTrackIndex];
 
@@ -232,19 +231,34 @@ const MusicPlayer = () => {
   }, [showVideo, hideBackgroundVideo]);
 
   // Enhanced shuffle logic with proper queue management
-  const createShuffledQueue = useCallback(() => {
-    const indices = Array.from({ length: tracks.length }, (_, i) => i);
+  const createShuffledQueue = useCallback((allowedIndices?: number[]) => {
+    const indices = allowedIndices
+      ? [...allowedIndices]
+      : Array.from({ length: tracks.length }, (_, i) => i);
     // Fisher-Yates shuffle
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
     return indices;
-  }, [tracks.length]);
+  }, []);
+
+  const getIndicesForArtist = useCallback((artist: string) => {
+    const allIndices = Array.from({ length: tracks.length }, (_, i) => i);
+    return allIndices.filter((i) => tracks[i].artist.trim() === artist.trim());
+  }, []);
+
+  const getFilteredIndices = useCallback(() => {
+    const all = Array.from({ length: tracks.length }, (_, i) => i);
+    return selectedArtist
+      ? all.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+      : all;
+  }, [selectedArtist]);
 
   const getNextShuffledTrack = useCallback(() => {
+    const baseIndices = getFilteredIndices();
     if (shuffledIndices.length === 0) {
-      const newQueue = createShuffledQueue();
+      const newQueue = createShuffledQueue(baseIndices);
       setShuffledIndices(newQueue);
       return newQueue[0];
     }
@@ -252,13 +266,13 @@ const MusicPlayer = () => {
     const currentIndexInQueue = shuffledIndices.indexOf(currentTrackIndex);
     if (currentIndexInQueue === -1 || currentIndexInQueue === shuffledIndices.length - 1) {
       // Current track not in queue or at end - always repeat queue (create new shuffled queue)
-      const newQueue = createShuffledQueue();
+      const newQueue = createShuffledQueue(baseIndices);
       setShuffledIndices(newQueue);
       return newQueue[0];
     }
 
     return shuffledIndices[currentIndexInQueue + 1];
-  }, [shuffledIndices, currentTrackIndex, createShuffledQueue]);
+  }, [shuffledIndices, currentTrackIndex, createShuffledQueue, getFilteredIndices]);
 
   const getPreviousShuffledTrack = useCallback(() => {
     if (shuffleHistory.length > 0) {
@@ -268,10 +282,10 @@ const MusicPlayer = () => {
     }
 
     // If no history, go to a random track
-    const availableIndices = Array.from({ length: tracks.length }, (_, i) => i)
-      .filter(i => i !== currentTrackIndex);
+    const baseIndices = getFilteredIndices();
+    const availableIndices = baseIndices.filter(i => i !== currentTrackIndex);
     return availableIndices[Math.floor(Math.random() * availableIndices.length)];
-  }, [shuffleHistory, currentTrackIndex, tracks.length]);
+  }, [shuffleHistory, currentTrackIndex, getFilteredIndices]);
 
   const playTrackAtIndex = useCallback((index: number) => {
     // Add current track to shuffle history if shuffled
@@ -304,12 +318,18 @@ const MusicPlayer = () => {
     if (isShuffled) {
       newIndex = getPreviousShuffledTrack();
     } else {
-      // Always loop back to end when at beginning (queue repeat behavior)
-      newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return;
+      const pos = filtered.indexOf(currentTrackIndex);
+      if (pos === -1) {
+        newIndex = filtered[0];
+      } else {
+        newIndex = filtered[(pos - 1 + filtered.length) % filtered.length];
+      }
     }
 
     playTrackAtIndex(newIndex);
-  }, [isShuffled, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, tracks.length]);
+  }, [isShuffled, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, getFilteredIndices]);
 
   const handleNext = useCallback(() => {
     let newIndex: number;
@@ -317,12 +337,18 @@ const MusicPlayer = () => {
     if (isShuffled) {
       newIndex = getNextShuffledTrack();
     } else {
-      // Always loop back to beginning when at end (queue repeat behavior)
-      newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return;
+      const pos = filtered.indexOf(currentTrackIndex);
+      if (pos === -1) {
+        newIndex = filtered[0];
+      } else {
+        newIndex = filtered[(pos + 1) % filtered.length];
+      }
     }
 
     playTrackAtIndex(newIndex);
-  }, [isShuffled, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, tracks.length]);
+  }, [isShuffled, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, getFilteredIndices]);
 
   const handleTrackEnd = useCallback(() => {
     // Repeat Current Song: replay current track
@@ -401,7 +427,8 @@ const MusicPlayer = () => {
 
     if (newShuffleState) {
       // Create initial shuffled queue
-      const newQueue = createShuffledQueue();
+      const base = getFilteredIndices();
+      const newQueue = createShuffledQueue(base);
       setShuffledIndices(newQueue);
       setShuffleHistory([]);
     } else {
@@ -464,9 +491,13 @@ const MusicPlayer = () => {
   }, [handleTrackEnd]);
 
   // Determine the order to display tracks in the playlist panel
+  const allIndices = Array.from({ length: tracks.length }, (_, i) => i);
+  const baseFilteredIndices = selectedArtist
+    ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+    : allIndices;
   const displayedIndices = (isShuffled && shuffledIndices.length > 0)
-    ? shuffledIndices
-    : Array.from({ length: tracks.length }, (_, i) => i);
+    ? shuffledIndices.filter((i) => baseFilteredIndices.includes(i))
+    : baseFilteredIndices;
 
   return (
     <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
@@ -649,19 +680,48 @@ const MusicPlayer = () => {
           {/* PLAYLIST */}
           <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
             <div className="flex items-center justify-between mb-6 mx-6">
-              <Drawer>
-                <DrawerTrigger><h3 className="text-xl font-bold cursor-pointer">Select Artist</h3></DrawerTrigger>
+              <Drawer open={isArtistDrawerOpen} onOpenChange={setIsArtistDrawerOpen}>
+                <DrawerTrigger>
+                  <h3 className="text-xl font-bold cursor-pointer">Select Artist</h3>
+                </DrawerTrigger>
                 <DrawerContent>
                   <DrawerContent>
                     <div className="w-full flex justify-center items-center p-5">
                       <Carousel className="w-full max-w-xs">
                         <CarouselContent>
-                          {Array.from({ length: 5 }).map((_, index) => (
-                            <CarouselItem key={index}>
+                          {Array.from(
+                            new Map(
+                              tracks
+                                .filter((t) => t.artistPoster)
+                                .map((t) => [t.artist.trim(), { artist: t.artist.trim(), poster: t.artistPoster }])
+                            ).values()
+                          ).map((item) => (
+                            <CarouselItem key={item.artist}>
                               <div>
                                 <Card>
-                                  <CardContent className="flex aspect-square items-center justify-center">
-                                    <img src={tracks[index].artistPoster} alt="" className="w-full h-full object-cover" />
+                                  <CardContent
+                                    className={`flex aspect-square items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
+                                    onClick={() => {
+                                      if (selectedArtist === item.artist) {
+                                        setSelectedArtist(null);
+                                        setIsShuffled(false);
+                                        setShuffledIndices([]);
+                                        setShuffleHistory([]);
+                                        setIsArtistDrawerOpen(false);
+                                        return;
+                                      }
+                                      setSelectedArtist(item.artist);
+                                      setIsShuffled(false);
+                                      setShuffledIndices([]);
+                                      setShuffleHistory([]);
+                                      const artistIndices = getIndicesForArtist(item.artist);
+                                      if (artistIndices.length > 0) {
+                                        setCurrentTrackIndex(artistIndices[0]);
+                                      }
+                                      setIsArtistDrawerOpen(false);
+                                    }}
+                                  >
+                                    <img src={item.poster as string} alt={item.artist} className="w-full h-full object-cover" />
                                   </CardContent>
                                 </Card>
                               </div>
@@ -673,12 +733,6 @@ const MusicPlayer = () => {
                       </Carousel>
                     </div>
                   </DrawerContent>
-                  <DrawerFooter>
-                    <Button>Submit</Button>
-                    <DrawerClose>
-                      <Button variant="outline">Cancel</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
                 </DrawerContent>
               </Drawer>
               <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" />
