@@ -21,8 +21,10 @@ interface PlaylistProps {
 const Playlist = ({ track, isActive, onClick }: PlaylistProps) => {
     return (
         <div
-            className={`group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] ${isActive ? 'bg-primary/10' : ''}`}
+            className={`playlist-item group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] ${isActive ? 'bg-primary/10' : ''}`}
             onClick={onClick}
+            data-id={track.id}
+            data-active={isActive}
         >
             <div className="relative flex-shrink-0">
                 <div className='w-12 h-12 rounded-full overflow-hidden'>

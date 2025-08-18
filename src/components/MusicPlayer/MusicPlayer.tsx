@@ -16,12 +16,13 @@ import {
   ScrollVelocityContainer,
   ScrollVelocityRow,
 } from "@/components/magicui/scroll-based-velocity";
-import { Ripple } from "../magicui/ripple";
+// import { Ripple } from "../magicui/ripple";
 
 const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
+  
 
   // Animation refs
   const albumCoverRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,8 @@ const MusicPlayer = () => {
   const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
 
   const currentTrack = tracks[currentTrackIndex];
+
+  
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -391,6 +394,7 @@ const MusicPlayer = () => {
     }
   };
 
+
   // Initial animation on component mount
   useEffect(() => {
     gsap.set([albumCoverRef.current, titleRef.current, artistRef.current, scrollingTextRef.current], {
@@ -442,6 +446,11 @@ const MusicPlayer = () => {
     };
   }, [handleTrackEnd]);
 
+  // Determine the order to display tracks in the playlist panel
+  const displayedIndices = (isShuffled && shuffledIndices.length > 0)
+    ? shuffledIndices
+    : Array.from({ length: tracks.length }, (_, i) => i);
+
   return (
     <div className="relative min-h-dvh flex items-center justify-center bg-background text-foreground transition-colors duration-300 px-2 sm:px-4 md:px-8 overflow-hidden">
 
@@ -477,7 +486,7 @@ const MusicPlayer = () => {
                         ref={albumCoverRef}
                         className="aspect-square min-w-64 max-w-64 mx-auto md:mx-0 rounded-3xl shadow-2xl overflow-hidden"
                       >
-                        <Ripple className="absolute rounded-2xl inset-0 opacity-80"/>
+                        {/* <Ripple className="absolute rounded-2xl inset-0 opacity-80"/> */}
                         <img
                           src={currentTrack.coverUrl}
                           className="w-full h-full object-cover opacity-100"
@@ -485,7 +494,7 @@ const MusicPlayer = () => {
                         />
                       </div>
                       <div className="flex flex-1 justify-center lg:text-left">
-                        <div className="text-center flex justify-center flex-col lg:text-left w-full mt-5">
+                        <div className="text-center flex justify-center flex-col lg:text-left w-full">
                           <h2 
                             ref={titleRef}
                             className="text-[clamp(1.5rem,6vw,3rem)] font-bold font-spotify-display mb-2 tracking-tight"
@@ -632,12 +641,12 @@ const MusicPlayer = () => {
               className="space-y-3 h-[clamp(512px,40vh,100vh)] overflow-y-auto overflow-x-hidden 
                [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[clamp(1rem,6vw,1.5rem)]"
             >
-              {tracks.map((track, index) => (
+              {displayedIndices.map((trackIndex) => (
                 <Playlist
-                  key={index}
-                  track={track}
-                  isActive={index === currentTrackIndex}
-                  onClick={() => playTrackAtIndex(index)}
+                  key={tracks[trackIndex].id}
+                  track={tracks[trackIndex]}
+                  isActive={trackIndex === currentTrackIndex}
+                  onClick={() => playTrackAtIndex(trackIndex)}
                 />
               ))}
             </div>
