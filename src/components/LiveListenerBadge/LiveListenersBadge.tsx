@@ -140,12 +140,13 @@ export default function LiveListenersBadge() {
   }, [db, isListening, nowPlaying]);
 
   return (
-    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+    <Drawer open={isDrawerOpen} onOpenChange={(open) => { setIsDrawerOpen(open); if (open) setIsHovering(false); }}>
       <DrawerTrigger asChild>
         <button
           type="button"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
+          onClick={() => setIsHovering(false)}
           className="relative inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-foreground/90 backdrop-blur-sm select-none dark:border-white/10 dark:bg-white/5"
           aria-label={`${count} people listening live`}
           title={nowPlaying ? `${count} listening • You: ${nowPlaying.title} — ${nowPlaying.artist} (${nowPlaying.state})` : `${count} people listening live`}
@@ -156,7 +157,7 @@ export default function LiveListenersBadge() {
           <span className="text-foreground/70">listening</span>
           <span className="sr-only">Live listeners badge</span>
 
-          {isHovering && (
+          {isHovering && !isDrawerOpen && (
             <div className="absolute right-0 top-[110%] z-50 min-w-[240px] max-w-[320px] rounded-xl border border-white/10 bg-background/95 p-3 shadow-xl backdrop-blur-md">
               <div className="text-xs text-foreground/70 mb-2">Now playing</div>
               {listeners.filter((l) => Boolean(l.track)).length === 0 && (
