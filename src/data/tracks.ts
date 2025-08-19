@@ -15,6 +15,8 @@ import OneOfTheGirls from "/Album/OneOfTheGirls.png"
 import You from "/Album/YOU.png"
 import Wildflower from "/Album/Wildflower.png"
 import ContigoSiempre from "/Album/ContigoSiempre.png"
+import Andromeda from "/Album/Andromeda.png"
+import MontagemXonada from "/Album/MontagemXonada.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
@@ -33,6 +35,8 @@ import OneOfTheGirlsAudio from "/Audio/TheWeeknd/OneOfTheGirls.mp3"
 import YouAudio from "/Audio/LANY/YOU.mp3"
 import WildflowerAudio from "/Audio/YungKai/Wildflower.mp3"
 import ContigoSiempreAudio from "/Audio/Phonk/ContigoSiempre.mp3"
+import AndromedaAudio from "/Audio/Phonk/ANDROMEDA.mp3"
+import MontagemXonadaAudio from "/Audio/Phonk/MontagemXonada.mp3"
 
 
 // Artist Poster 
@@ -232,6 +236,30 @@ const baseTracks = [
     duration: 85,
     coverUrl: ContigoSiempre,
     audioUrl: ContigoSiempreAudio,
+    mode: "phonk",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 17,
+    title: "Andromeda",
+    artist: "Elysian",
+    artistPoster: "",
+    duration: 74,
+    coverUrl: Andromeda,
+    audioUrl: AndromedaAudio,
+    mode: "phonk",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 18,
+    title: "Montagem Xonada",
+    artist: "MXZI, Dj Samir, DJ Javi26",
+    artistPoster: "",
+    duration: 324,
+    coverUrl: MontagemXonada,
+    audioUrl: MontagemXonadaAudio,
     mode: "phonk",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
