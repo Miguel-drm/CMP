@@ -4,7 +4,7 @@ type Track = {
   id: number;
   title: string;
   artist: string;
-  album: string;
+  album?: string;
   duration: number;
   coverUrl: string;
   audioUrl: string;
