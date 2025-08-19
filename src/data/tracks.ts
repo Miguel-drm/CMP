@@ -13,10 +13,11 @@ import MakeItToTheMorning from "/Album/MakeItToTheMorning.png"
 import Dreamin from "/Album/Dreamin.png"
 import OneOfTheGirls from "/Album/OneOfTheGirls.png"
 import You from "/Album/YOU.png"
+import Wildflower from "/Album/Wildflower.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
-import BlueAudio from "/Audio/Blue.mp3"
+import BlueAudio from "/Audio/YungKai/Blue.mp3"
 import MultoAudio from "/Audio/Multo.mp3"
 import SikuloAudio from "/Audio/Sikulo.mp3"
 import IkawPatutunguhanAudio from "/Audio/Ikaw Patutunguhan.mp3"
@@ -29,12 +30,15 @@ import MakeItToTheMorningAudio from "/Audio/PartyNextDoor/MakeItToTheMorning.mp3
 import DreaminAudio from "/Audio/PartyNextDoor/Dreamin.mp3"
 import OneOfTheGirlsAudio from "/Audio/TheWeeknd/OneOfTheGirls.mp3"
 import YouAudio from "/Audio/LANY/YOU.mp3"
+import WildflowerAudio from "/Audio/YungKai/Wildflower.mp3"
+
 
 // Artist Poster 
 import The1975Poster from "/Album/ArtistPoster/The1975Poster.jpg"
 import PartyNextDoorPoster from "/Album/ArtistPoster/PartyNextDoor.jpg"
 import TheWeekndPoster from "/Album/ArtistPoster/TheWeeknd.jpg"
 import LANYPoster from "/Album/ArtistPoster/LANY.jpg"
+import YungKaiPoster from "/Album/ArtistPoster/YungKai.jpg"
 
 
 const baseTracks = [
@@ -203,6 +207,18 @@ const baseTracks = [
     duration: 272,
     coverUrl: You,
     audioUrl: YouAudio,
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 15,
+    title: "Wildflower",
+    artist: "Yung Kai",
+    artistPoster: YungKaiPoster,
+    album: "Album 14",
+    duration: 175,
+    coverUrl: Wildflower,
+    audioUrl: WildflowerAudio,
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   }

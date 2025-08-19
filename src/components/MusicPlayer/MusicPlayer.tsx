@@ -32,6 +32,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+// import RealtimeListeners from "@/components/Listeners/RealtimeListeners";
 
 
 const MusicPlayer = () => {
@@ -60,6 +61,13 @@ const MusicPlayer = () => {
   const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isArtistDrawerOpen, setIsArtistDrawerOpen] = useState(false);
+
+  const broadcastNowPlaying = useCallback((state: "play" | "pause" | "ended") => {
+    const t = tracks[currentTrackIndex];
+    if (!t) return;
+    const detail = { id: t.id, title: t.title, artist: t.artist, state };
+    window.dispatchEvent(new CustomEvent("now-playing", { detail }));
+  }, [currentTrackIndex]);
 
   // Memoized derived data
   const allIndices = useMemo(() => Array.from({ length: tracks.length }, (_, i) => i), []);
@@ -312,6 +320,7 @@ const MusicPlayer = () => {
 
     setCurrentTrackIndex(index);
     setIsPlaying(true);
+    broadcastNowPlaying("play");
 
     // Trigger animation if track changed
     if (isTrackChanging) {
@@ -337,7 +346,7 @@ const MusicPlayer = () => {
         );
       }
     }
-  }, [isShuffled, currentTrackIndex, animateTrackChange]);
+  }, [isShuffled, currentTrackIndex, animateTrackChange, broadcastNowPlaying]);
 
   const handlePrevious = useCallback(() => {
     let newIndex: number;
@@ -421,12 +430,14 @@ const MusicPlayer = () => {
     if (isPlaying) {
       audio.pause();
       video?.pause();
+      broadcastNowPlaying("pause");
     } else {
       audio.play();
       video?.play();
+      broadcastNowPlaying("play");
     }
     setIsPlaying(!isPlaying);
-  }, [isPlaying]);
+  }, [isPlaying, broadcastNowPlaying]);
 
   const handleSeek = (time: number) => {
     if (audioRef.current) {
@@ -442,6 +453,12 @@ const MusicPlayer = () => {
       setCurrentTime(time);
     }
   };
+
+  // Broadcast now-playing changes when track index changes or playback toggles
+  useEffect(() => {
+    broadcastNowPlaying(isPlaying ? "play" : "pause");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTrackIndex, isPlaying]);
 
   const toggleRepeat = () => {
     // Simple toggle: off (repeat queue) <-> on (repeat current song)
@@ -805,7 +822,7 @@ const MusicPlayer = () => {
                                       setIsArtistDrawerOpen(false);
                                     }}
                                   >
-                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-fill" loading="lazy" decoding="async" />
+                                    <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-fill rounded-xl" loading="lazy" decoding="async" />
                                   </CardContent>
                                 </Card>
                               </div>
@@ -835,6 +852,11 @@ const MusicPlayer = () => {
               ))}
             </div>
           </div>
+
+          {/* LIVE LISTENERS */}
+          {/* <div className="lg:col-span-3">
+            <RealtimeListeners currentSongTitle={isPlaying ? currentTrack.title : null} isPlaying={isPlaying} />
+          </div> */}
         </div>
       </div>
     </div>
