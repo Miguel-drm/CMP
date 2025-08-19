@@ -17,6 +17,7 @@ import Wildflower from "/Album/Wildflower.png"
 import ContigoSiempre from "/Album/ContigoSiempre.png"
 import Andromeda from "/Album/Andromeda.png"
 import MontagemXonada from "/Album/MontagemXonada.png"
+import Apocalypse from "/Album/Apocalypse.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
@@ -25,7 +26,7 @@ import MultoAudio from "/Audio/Multo.mp3"
 import SikuloAudio from "/Audio/Sikulo.mp3"
 import IkawPatutunguhanAudio from "/Audio/Ikaw Patutunguhan.mp3"
 import New_Slang from "/Audio/New Slang.mp3"
-import Let_Down from "/Audio/Let Down.mp3"
+import Let_Down from "/Audio/Radiohead/Let Down.mp3"
 import ILYSB from "/Audio/LANY/ILYSB.mp3"
 import Back_To_Friends from "/Audio/The1975/Back_To_Friends.mp3"
 import CryAudio from "/Audio/CigarettesAfterSex/Cry.mp3"
@@ -37,6 +38,8 @@ import WildflowerAudio from "/Audio/YungKai/Wildflower.mp3"
 import ContigoSiempreAudio from "/Audio/Phonk/ContigoSiempre.mp3"
 import AndromedaAudio from "/Audio/Phonk/ANDROMEDA.mp3"
 import MontagemXonadaAudio from "/Audio/Phonk/MontagemXonada.mp3"
+import ApocalypseAudio from "/Audio/CigarettesAfterSex/Apocalypse.mp3"
+import NoSurprisesAudio from "/Audio/Radiohead/NoSurprises.mp3"
 
 
 // Artist Poster 
@@ -45,6 +48,8 @@ import PartyNextDoorPoster from "/Album/ArtistPoster/PartyNextDoor.jpg"
 import TheWeekndPoster from "/Album/ArtistPoster/TheWeeknd.jpg"
 import LANYPoster from "/Album/ArtistPoster/LANY.jpg"
 import YungKaiPoster from "/Album/ArtistPoster/YungKai.jpg"
+import CigarettesAfterSexPoster from "/Album/ArtistPoster/CigarettesAfterSex.jpg"
+import RadioheadPoster from "/Album/ArtistPoster/Radiohead.jpg"
 
 
 const baseTracks = [
@@ -160,7 +165,7 @@ const baseTracks = [
     id: 10,
     title: "Cry",
     artist: "Cigarettes After Sex",
-    artistPoster: "",
+    artistPoster: CigarettesAfterSexPoster,
     duration: 257,
     coverUrl: Cry,
     audioUrl: CryAudio,
@@ -261,6 +266,30 @@ const baseTracks = [
     coverUrl: MontagemXonada,
     audioUrl: MontagemXonadaAudio,
     mode: "phonk",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 19,
+    title: "Apocalypse",
+    artist: "Cigarettes After Sex",
+    artistPoster: CigarettesAfterSexPoster,
+    duration: 290,
+    coverUrl: Apocalypse,
+    audioUrl: ApocalypseAudio,
+    mode: "normal",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 20,
+    title: "No Surprises",
+    artist: "Radiohead",
+    artistPoster: RadioheadPoster,
+    duration: 227,
+    coverUrl: LetDown,
+    audioUrl: NoSurprisesAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   }
