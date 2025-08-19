@@ -11,28 +11,33 @@ import BackToFriends from "/Album/BacktoFriends.png"
 import Cry from "/Album/Cry.png"
 import MakeItToTheMorning from "/Album/MakeItToTheMorning.png"
 import Dreamin from "/Album/Dreamin.png"
-
+import OneOfTheGirls from "/Album/OneOfTheGirls.png"
+import You from "/Album/YOU.png"
 
 // MP3 Audio
-import AboutYouAudio from "/Audio/About You.mp3"
+import AboutYouAudio from "/Audio/The1975/About You.mp3"
 import BlueAudio from "/Audio/Blue.mp3"
 import MultoAudio from "/Audio/Multo.mp3"
 import SikuloAudio from "/Audio/Sikulo.mp3"
 import IkawPatutunguhanAudio from "/Audio/Ikaw Patutunguhan.mp3"
 import New_Slang from "/Audio/New Slang.mp3"
 import Let_Down from "/Audio/Let Down.mp3"
-import ILYSB from "/Audio/ILYSB.mp3"
-import Back_To_Friends from "/Audio/Back_To_Friends.mp3"
-import CryAudio from "/Audio/Cry.mp3"
-import MakeItToTheMorningAudio from "/Audio/MakeItToTheMorning.mp3"
-import DreaminAudio from "/Audio/Dreamin.mp3"
+import ILYSB from "/Audio/LANY/ILYSB.mp3"
+import Back_To_Friends from "/Audio/The1975/Back_To_Friends.mp3"
+import CryAudio from "/Audio/CigarettesAfterSex/Cry.mp3"
+import MakeItToTheMorningAudio from "/Audio/PartyNextDoor/MakeItToTheMorning.mp3"
+import DreaminAudio from "/Audio/PartyNextDoor/Dreamin.mp3"
+import OneOfTheGirlsAudio from "/Audio/TheWeeknd/OneOfTheGirls.mp3"
+import YouAudio from "/Audio/LANY/YOU.mp3"
 
 // Artist Poster 
 import The1975Poster from "/Album/ArtistPoster/The1975Poster.jpg"
 import PartyNextDoorPoster from "/Album/ArtistPoster/PartyNextDoor.jpg"
+import TheWeekndPoster from "/Album/ArtistPoster/TheWeeknd.jpg"
+import LANYPoster from "/Album/ArtistPoster/LANY.jpg"
 
 
-export const tracks = [
+const baseTracks = [
   {
     id: 1,
     title: "About You",
@@ -121,7 +126,7 @@ export const tracks = [
     id: 8,
     title: "ILYSB",
     artist: "LANY",
-    artistPoster: "",
+    artistPoster: LANYPoster,
     album: "Album 7",
     duration: 241,
     coverUrl: ilysb,
@@ -176,7 +181,43 @@ export const tracks = [
     audioUrl: DreaminAudio,
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 13,
+    title: "One Of The Girls",
+    artist: "The Weeknd",
+    artistPoster: TheWeekndPoster,
+    album: "Album 12",
+    duration: 244,
+    coverUrl: OneOfTheGirls,
+    audioUrl: OneOfTheGirlsAudio,
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 14,
+    title: "You",
+    artist: "LANY",
+    artistPoster: LANYPoster,
+    album: "Album 13",
+    duration: 272,
+    coverUrl: You,
+    audioUrl: YouAudio,
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
   }
-  
-
 ];
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const array = [...arr]
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[array[i], array[j]] = [array[j], array[i]]
+  }
+  return array
+}
+
+export const tracks = shuffleArray(baseTracks).map((track, index) => ({
+  ...track,
+  id: index + 1,
+}))

@@ -38,6 +38,7 @@ const MusicPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
+  const playerPanelRef = useRef<HTMLDivElement>(null);
 
 
   // Animation refs
@@ -323,6 +324,19 @@ const MusicPlayer = () => {
       audioRef.current?.play();
       if (videoRef.current) videoRef.current.play();
     }, 0);
+
+    // On small screens, scroll player into view and highlight it
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      const panel = playerPanelRef.current;
+      if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        gsap.fromTo(
+          panel,
+          { boxShadow: '0 0 0px rgba(99,102,241,0.0)' },
+          { boxShadow: '0 0 24px rgba(99,102,241,0.5)', duration: 0.35, yoyo: true, repeat: 1, ease: 'sine.inOut' }
+        );
+      }
+    }
   }, [isShuffled, currentTrackIndex, animateTrackChange]);
 
   const handlePrevious = useCallback(() => {
@@ -559,7 +573,7 @@ const MusicPlayer = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
           {/* PLAYER PANEL */}
-          <div className=" relative lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
+          <div ref={playerPanelRef} className=" relative lg:col-span-2 rounded-3xl p-8 text-card-foreground transition-colors duration-300 overflow-hidden">
             {/* Track Info */}
             <div className="flex flex-col md:flex-row gap-8 mt-13 lg:mt-0">
               <div className="flex flex-col justify-between overflow-hidden">
@@ -744,6 +758,11 @@ const MusicPlayer = () => {
                                   <CardContent
                                     className={`flex items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
                                     onClick={() => {
+                                      const clickedArtist = item.artist.trim();
+                                      const currentArtist = tracks[currentTrackIndex]?.artist.trim();
+                                      const isSameAsCurrent = currentArtist === clickedArtist;
+
+                                      // Toggling off the same artist filter → keep playback state
                                       if (selectedArtist === item.artist) {
                                         setSelectedArtist(null);
                                         setIsShuffled(false);
@@ -752,14 +771,37 @@ const MusicPlayer = () => {
                                         setIsArtistDrawerOpen(false);
                                         return;
                                       }
+
+                                      // Apply new artist filter
                                       setSelectedArtist(item.artist);
                                       setIsShuffled(false);
                                       setShuffledIndices([]);
                                       setShuffleHistory([]);
-                                      const artistIndices = getIndicesForArtist(item.artist);
-                                      if (artistIndices.length > 0) {
-                                        setCurrentTrackIndex(artistIndices[0]);
+
+                                      if (!isSameAsCurrent) {
+                                        // Switching to different artist than the one currently playing → pause/reset
+                                        const audio = audioRef.current;
+                                        const video = videoRef.current;
+                                        if (audio) {
+                                          audio.pause();
+                                          audio.currentTime = 0;
+                                        }
+                                        if (video) {
+                                          video.pause();
+                                          video.currentTime = 0;
+                                        }
+                                        if (showVideo) {
+                                          hideBackgroundVideo();
+                                        }
+                                        setIsPlaying(false);
+                                        setCurrentTime(0);
+
+                                        const artistIndices = getIndicesForArtist(item.artist);
+                                        if (artistIndices.length > 0) {
+                                          setCurrentTrackIndex(artistIndices[0]);
+                                        }
                                       }
+
                                       setIsArtistDrawerOpen(false);
                                     }}
                                   >
@@ -793,12 +835,9 @@ const MusicPlayer = () => {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
-
   );
 };
 
