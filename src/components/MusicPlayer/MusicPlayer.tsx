@@ -32,7 +32,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-// import RealtimeListeners from "@/components/Listeners/RealtimeListeners";
 
 
 const MusicPlayer = () => {
@@ -65,7 +64,7 @@ const MusicPlayer = () => {
   const broadcastNowPlaying = useCallback((state: "play" | "pause" | "ended") => {
     const t = tracks[currentTrackIndex];
     if (!t) return;
-    const detail = { id: t.id, title: t.title, artist: t.artist, state };
+    const detail = { id: t.id, title: t.title, artist: t.artist, coverUrl: t.coverUrl, state };
     window.dispatchEvent(new CustomEvent("now-playing", { detail }));
   }, [currentTrackIndex]);
 
@@ -456,7 +455,16 @@ const MusicPlayer = () => {
 
   // Broadcast now-playing changes when track index changes or playback toggles
   useEffect(() => {
-    broadcastNowPlaying(isPlaying ? "play" : "pause");
+    // Debounce broadcast slightly to avoid flicker when switching tracks fast
+    const id = setTimeout(() => {
+      if (isPlaying) {
+        broadcastNowPlaying("play");
+      } else {
+        // When paused, still update local badge state but DO NOT notify others via the listener badge queue.
+        broadcastNowPlaying("pause");
+      }
+    }, 120);
+    return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackIndex, isPlaying]);
 
@@ -852,11 +860,6 @@ const MusicPlayer = () => {
               ))}
             </div>
           </div>
-
-          {/* LIVE LISTENERS */}
-          {/* <div className="lg:col-span-3">
-            <RealtimeListeners currentSongTitle={isPlaying ? currentTrack.title : null} isPlaying={isPlaying} />
-          </div> */}
         </div>
       </div>
     </div>
