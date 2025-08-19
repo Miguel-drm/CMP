@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { NumberTicker } from "@/components/magicui/number-ticker";
 import {
   getFirebaseDatabase,
@@ -14,7 +14,31 @@ import {
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { gsap } from "gsap";
 import { tracks as allTracks } from "@/data/tracks";
-const NotificationCard = lazy(async () => ({ default: (await import("@/components/LiveListenerBadge/NotificationCard")).default }));
+// Simple inline notification card fallback (no lazy external file required)
+function NotificationCardInline(props: { sessionId: string; title: string; artist: string; coverUrl?: string }) {
+  const { sessionId, title, artist, coverUrl } = props;
+  return (
+    <div className="rounded-xl border border-white/10 bg-background/95 shadow-xl px-3 py-2 text-foreground/90">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-md overflow-hidden bg-muted">
+          {coverUrl ? (
+            <img src={coverUrl} alt={title} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-muted/60 to-muted" />
+          )}
+        </div>
+        <div className="min-w-[160px] max-w-[220px]">
+          <div className="text-xs text-foreground/70">
+            🎧 {`Anonymous${sessionId.replace(/-/g, "").slice(-6).toUpperCase()}`} is listening to
+          </div>
+          <div className="text-sm font-medium text-foreground/90 leading-tight line-clamp-1">{title}</div>
+          <div className="text-xs text-foreground/70 leading-tight line-clamp-1">{artist}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+const ListenersDrawerContent = lazy(async () => ({ default: (await import("@/components/LiveListenerBadge/ListenersDrawerContent")).default }));
 
 type NowPlayingTrack = { id: number; title: string; artist: string; coverUrl?: string; state?: string };
 type ListenerPresence = {
@@ -43,6 +67,7 @@ export default function LiveListenersBadge() {
   const [listeners, setListeners] = useState<Array<{ id: string; track?: NowPlayingTrack }>>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isLoadingListeners, setIsLoadingListeners] = useState(true);
   const sessionIdRef = useRef<string>(generateSessionId());
   const db = isFirebaseConfigured ? getFirebaseDatabase() : null;
   const badgeRef = useRef<HTMLButtonElement>(null);
@@ -119,8 +144,9 @@ export default function LiveListenersBadge() {
       if (!activeNotification && notifQueueRef.current.length > 0) {
         setActiveNotification(notifQueueRef.current.shift() || null);
       }
+      if (isLoadingListeners) setIsLoadingListeners(false);
     });
-  }, [db, nowPlaying, activeNotification]);
+  }, [db, nowPlaying, activeNotification, isLoadingListeners]);
 
   // Track global audio play/pause to know if user is actively listening
   useEffect(() => {
@@ -205,19 +231,6 @@ export default function LiveListenersBadge() {
     const byMeta = allTracks.find((x) => x.title.trim().toLowerCase() === titleTrim && x.artist.trim().toLowerCase() === artistTrim);
     return byMeta?.coverUrl as string | undefined;
   }
-  // Memoize derived visible items for drawer and tooltip
-  const visibleListenerCards = useMemo(() => {
-    return listeners
-      .filter((l) => Boolean(l.track))
-      .map((l) => ({
-        id: l.id,
-        title: l.track!.title,
-        artist: l.track!.artist,
-        coverUrl: resolveCoverUrl({ trackId: l.track!.id, title: l.track!.title, artist: l.track!.artist, coverUrl: l.track!.coverUrl }) || undefined,
-      }));
-  }, [listeners]);
-  const hoverItems = useMemo(() => visibleListenerCards.slice(0, 5), [visibleListenerCards]);
-
 
   // Animate notification from top-right into the badge
   useEffect(() => {
@@ -226,43 +239,45 @@ export default function LiveListenersBadge() {
     const badgeEl = badgeRef.current;
     if (!notifEl || !badgeEl) return;
 
-    // Wait a frame so lazy content can render and layout is stable, then measure
-    requestAnimationFrame(() => {
-      const badgeRect = badgeEl.getBoundingClientRect();
-      const notifRect = notifEl.getBoundingClientRect();
-      const startX = window.innerWidth - 16 - notifRect.width / 2;
-      const startY = 16 + notifRect.height / 2;
-      const targetX = badgeRect.left + badgeRect.width / 2;
-      const targetY = badgeRect.top + badgeRect.height / 2;
-      const deltaX = targetX - startX;
-      const deltaY = targetY - startY;
+    // Compute target center in viewport
+    const badgeRect = badgeEl.getBoundingClientRect();
+    const notifRect = notifEl.getBoundingClientRect();
+    const startX = window.innerWidth - 16 - notifRect.width / 2;
+    const startY = 16 + notifRect.height / 2;
+    const targetX = badgeRect.left + badgeRect.width / 2;
+    const targetY = badgeRect.top + badgeRect.height / 2;
+    const deltaX = targetX - startX;
+    const deltaY = targetY - startY;
 
-      gsap.set(notifEl, { willChange: "transform, opacity" });
+    gsap.set(notifEl, { willChange: "transform, opacity" });
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.fromTo(
-        notifEl,
-        { opacity: 0, scale: 0.92, x: 0, y: 0 },
-        { opacity: 1, scale: 1, duration: 0.3 }
-      )
-        .to(notifEl, { x: deltaX * 0.85, y: deltaY * 0.85, duration: 1.2, ease: "power3.out" })
-        .to(notifEl, { x: deltaX * 1.03, y: deltaY * 1.03, duration: 0.25, ease: "sine.inOut" })
-        .to(notifEl, { x: deltaX, y: deltaY, scale: 0.9, opacity: 0, duration: 0.45, ease: "power1.inOut" }, "-=0.05")
-        .add(() => {
-          gsap.fromTo(
-            badgeEl,
-            { boxShadow: "0 0 0px rgba(16,185,129,0.0)", scale: 1 },
-            { boxShadow: "0 0 18px rgba(16,185,129,0.45)", scale: 1.035, duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }
-          );
-        })
-        .add(() => {
-          gsap.set(notifEl, { clearProps: "willChange" });
-          setActiveNotification(null);
-          if (notifQueueRef.current.length > 0) {
-            setActiveNotification(notifQueueRef.current.shift() || null);
-          }
-        });
-    });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.fromTo(
+      notifEl,
+      { opacity: 0, scale: 0.92, x: 0, y: 0 },
+      { opacity: 1, scale: 1, duration: 0.3 }
+    )
+      // smooth travel towards the badge
+      .to(notifEl, { x: deltaX * 0.85, y: deltaY * 0.85, duration: 1.2, ease: "power3.out" })
+      // gentle overshoot
+      .to(notifEl, { x: deltaX * 1.03, y: deltaY * 1.03, duration: 0.25, ease: "sine.inOut" })
+      // settle and fade into the badge
+      .to(notifEl, { x: deltaX, y: deltaY, scale: 0.9, opacity: 0, duration: 0.45, ease: "power1.inOut" }, "-=0.05")
+      .add(() => {
+        // Subtle pulse on badge
+        gsap.fromTo(
+          badgeEl,
+          { boxShadow: "0 0 0px rgba(16,185,129,0.0)", scale: 1 },
+          { boxShadow: "0 0 18px rgba(16,185,129,0.45)", scale: 1.035, duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }
+        );
+      })
+      .add(() => {
+        gsap.set(notifEl, { clearProps: "willChange" });
+        setActiveNotification(null);
+        if (notifQueueRef.current.length > 0) {
+          setActiveNotification(notifQueueRef.current.shift() || null);
+        }
+      });
   }, [activeNotification]);
 
   return (
@@ -287,17 +302,27 @@ export default function LiveListenersBadge() {
           {isHovering && !isDrawerOpen && (
             <div className="absolute right-0 top-[110%] z-50 min-w-[240px] max-w-[320px] rounded-xl border border-white/10 bg-background/95 p-3 shadow-xl backdrop-blur-md">
               <div className="text-xs text-foreground/70 mb-2">Now playing</div>
-              {hoverItems.length === 0 && (
-                <div className="text-sm text-foreground/80">No one is listening right now</div>
-              )}
-              {hoverItems.map((l) => (
-                <div key={l.id} className="text-sm text-foreground/90 py-1">
-                  <span className="font-medium">Listener #{l.id.slice(-4)}</span>
-                  <span className="text-foreground/80"> — {l.title} — {l.artist}</span>
+              {isLoadingListeners ? (
+                <div className="space-y-2">
+                  <div className="h-4 w-56 rounded bg-white/10 animate-pulse" />
+                  <div className="h-4 w-48 rounded bg-white/10 animate-pulse" />
+                  <div className="h-4 w-40 rounded bg-white/10 animate-pulse" />
                 </div>
-              ))}
-              {visibleListenerCards.length > 5 && (
-                <div className="text-xs text-foreground/60 mt-1">and {visibleListenerCards.length - 5} more…</div>
+              ) : (
+                <>
+                  {listeners.filter((l) => Boolean(l.track)).length === 0 && (
+                    <div className="text-sm text-foreground/80">No one is listening right now</div>
+                  )}
+                  {listeners.filter((l) => Boolean(l.track)).slice(0, 5).map((l) => (
+                    <div key={l.id} className="text-sm text-foreground/90 py-1">
+                      <span className="font-medium">Listener #{l.id.slice(-4)}</span>
+                      <span className="text-foreground/80"> — {l.track!.title} — {l.track!.artist}</span>
+                    </div>
+                  ))}
+                  {listeners.filter((l) => Boolean(l.track)).length > 5 && (
+                    <div className="text-xs text-foreground/60 mt-1">and {listeners.filter((l) => Boolean(l.track)).length - 5} more…</div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -309,8 +334,8 @@ export default function LiveListenersBadge() {
           ref={notifRef}
           className="fixed right-4 top-4 z-[100] pointer-events-none"
         >
-          <Suspense fallback={<div className="rounded-xl border border-white/10 bg-background/95 shadow-xl px-3 py-2 h-14 w-[260px]" /> }>
-            <NotificationCard
+          <Suspense fallback={<div className="rounded-xl border border-white/10 bg-background/95 shadow-xl px-3 py-2 w-[260px] h-[56px] flex items-center gap-3 animate-pulse"><div className="h-10 w-10 rounded-md bg-white/10" /><div className="flex-1 space-y-1"><div className="h-3 w-40 rounded bg-white/10" /><div className="h-3 w-28 rounded bg-white/10" /></div></div>}>
+            <NotificationCardInline
               sessionId={activeNotification.sessionId}
               title={activeNotification.title}
               artist={activeNotification.artist}
@@ -323,30 +348,17 @@ export default function LiveListenersBadge() {
         <div className="w-full flex flex-col items-center p-5">
           <DrawerTitle className="mb-2">Live listeners</DrawerTitle>
           <DrawerDescription className="mb-4">Anonymous listeners and what they are playing</DrawerDescription>
-          <div className="w-full max-w-md">
-            {visibleListenerCards.length === 0 ? (
-              <div className="text-sm text-foreground/80">No one is listening right now.</div>
-            ) : (
-              <div className="space-y-2">
-                {visibleListenerCards.map((l) => (
-                  <div key={l.id} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3">
-                    <div className="h-10 w-10 rounded-md overflow-hidden bg-muted shrink-0">
-                      {l.coverUrl ? (
-                        <img src={l.coverUrl} alt={l.title} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-muted/60 to-muted" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground/90 leading-tight line-clamp-1">{l.title}</div>
-                      <div className="text-xs text-foreground/70 leading-tight line-clamp-1">{l.artist}</div>
-                    </div>
-                    <div className="text-xs text-foreground/60">#{l.id.slice(-6)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <Suspense fallback={<ListenersDrawerContent items={[]} loading /> }>
+            <ListenersDrawerContent
+              items={listeners.filter((l) => Boolean(l.track)).map((l) => ({
+                id: l.id,
+                title: l.track!.title,
+                artist: l.track!.artist,
+                coverUrl: resolveCoverUrl({ trackId: l.track!.id, title: l.track!.title, artist: l.track!.artist, coverUrl: l.track!.coverUrl }) || undefined,
+              }))}
+              loading={isLoadingListeners}
+            />
+          </Suspense>
         </div>
       </DrawerContent>
     </Drawer>

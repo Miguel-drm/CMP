@@ -14,6 +14,7 @@ import Dreamin from "/Album/Dreamin.png"
 import OneOfTheGirls from "/Album/OneOfTheGirls.png"
 import You from "/Album/YOU.png"
 import Wildflower from "/Album/Wildflower.png"
+import ContigoSiempre from "/Album/ContigoSiempre.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
@@ -31,6 +32,7 @@ import DreaminAudio from "/Audio/PartyNextDoor/Dreamin.mp3"
 import OneOfTheGirlsAudio from "/Audio/TheWeeknd/OneOfTheGirls.mp3"
 import YouAudio from "/Audio/LANY/YOU.mp3"
 import WildflowerAudio from "/Audio/YungKai/Wildflower.mp3"
+import ContigoSiempreAudio from "/Audio/Phonk/ContigoSiempre.mp3"
 
 
 // Artist Poster 
@@ -47,10 +49,10 @@ const baseTracks = [
     title: "About You",
     artist: "The 1975",
     artistPoster: The1975Poster,
-    album: "Album 1",
     duration: 326,
     coverUrl: AboutYou,
     audioUrl: AboutYouAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/about-you.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 30 seconds
   },
@@ -59,10 +61,10 @@ const baseTracks = [
     title: "Blue",
     artist: "Yung Kai",
     artistPoster: "",
-    album: "Album 2",
     duration: 221,
     coverUrl: Blue,
     audioUrl: BlueAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/blue.mp4", // Replace with actual video URL
     showVideoSecond: 45 // Show video at 45 seconds
   },
@@ -71,10 +73,10 @@ const baseTracks = [
     title: "Multo",
     artist: "Cup of Joe",
     artistPoster: "",
-    album: "Album 3",
     duration: 240,
     coverUrl: Multo,
     audioUrl: MultoAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/multo.mp4", // Replace with actual video URL
     showVideoSecond: 0 // Show video at 1 minute
   },
@@ -83,10 +85,10 @@ const baseTracks = [
     title: "Sikulo",
     artist: " Maki, Angela Ken, Nhiko",
     artistPoster: "",
-    album: "Album 4",
     duration: 315,
     coverUrl: Sikulo,
     audioUrl: SikuloAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/sikulo.mp4", // Replace with actual video URL
     showVideoSecond: 90 // Show video at 1:30
   },
@@ -95,10 +97,10 @@ const baseTracks = [
     title: "Ikaw Lang Patutunguhan",
     artist: "Amiel Sol",
     artistPoster: "",
-    album: "Album 5",
     duration: 341,
     coverUrl: IkawPatutunguhan,
     audioUrl: IkawPatutunguhanAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/ikaw-patutunguhan.mp4", // Replace with actual video URL
     showVideoSecond: 120 // Show video at 2 minutes
   },
@@ -107,10 +109,10 @@ const baseTracks = [
     title: "New Slang",
     artist: "The Shins",
     artistPoster: "",
-    album: "Album 6",
     duration: 232,
     coverUrl: NewSlang,
     audioUrl: New_Slang,
+    mode: "normal",
     videoUrl: "https://example.com/videos/new-slang.mp4", // Replace with actual video URL
     showVideoSecond: 75 // Show video at 1:15
   },
@@ -119,10 +121,10 @@ const baseTracks = [
     title: "Let Down",
     artist: "Radiohead",
     artistPoster: "",
-    album: "OK Computer",
     duration: 299,
     coverUrl: LetDown,
     audioUrl: Let_Down,
+    mode: "normal",
     videoUrl: "https://example.com/videos/let-down.mp4", // Replace with actual video URL
     showVideoSecond: 218 // Show video at 3:35
   },
@@ -131,10 +133,10 @@ const baseTracks = [
     title: "ILYSB",
     artist: "LANY",
     artistPoster: LANYPoster,
-    album: "Album 7",
     duration: 241,
     coverUrl: ilysb,
     audioUrl: ILYSB,
+    mode: "normal",
     videoUrl: "https://example.com/videos/ilysb.mp4", // Replace with actual video URL
     showVideoSecond: 50 // Show video at 50 seconds
   },
@@ -143,10 +145,10 @@ const baseTracks = [
     title: "Back to Friends",
     artist: "The 1975",
     artistPoster: The1975Poster,
-    album: "Album 8",
     duration: 201,
     coverUrl: BackToFriends,
     audioUrl: Back_To_Friends,
+    mode: "normal",
     videoUrl: "https://example.com/videos/back-to-friends.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -155,10 +157,10 @@ const baseTracks = [
     title: "Cry",
     artist: "Cigarettes After Sex",
     artistPoster: "",
-    album: "Album 9",
     duration: 257,
     coverUrl: Cry,
     audioUrl: CryAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -167,10 +169,10 @@ const baseTracks = [
     title: "Make It To The Morning",
     artist: "Party Next Door",
     artistPoster: PartyNextDoorPoster,
-    album: "Album 10",
     duration: 168,
     coverUrl: MakeItToTheMorning,
     audioUrl: MakeItToTheMorningAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -179,10 +181,10 @@ const baseTracks = [
     title: "Dreamin",
     artist: "Party Next Door",
     artistPoster: PartyNextDoorPoster,
-    album: "Album 11",
     duration: 147,
     coverUrl: Dreamin,
     audioUrl: DreaminAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -191,10 +193,10 @@ const baseTracks = [
     title: "One Of The Girls",
     artist: "The Weeknd",
     artistPoster: TheWeekndPoster,
-    album: "Album 12",
     duration: 244,
     coverUrl: OneOfTheGirls,
     audioUrl: OneOfTheGirlsAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -203,10 +205,10 @@ const baseTracks = [
     title: "You",
     artist: "LANY",
     artistPoster: LANYPoster,
-    album: "Album 13",
     duration: 272,
     coverUrl: You,
     audioUrl: YouAudio,
+    mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   },
@@ -215,10 +217,22 @@ const baseTracks = [
     title: "Wildflower",
     artist: "Yung Kai",
     artistPoster: YungKaiPoster,
-    album: "Album 14",
     duration: 175,
     coverUrl: Wildflower,
     audioUrl: WildflowerAudio,
+    mode: "normal",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 16,
+    title: "Contigo Siempre",
+    artist: "Flamer Runner",
+    artistPoster: "",
+    duration: 85,
+    coverUrl: ContigoSiempre,
+    audioUrl: ContigoSiempreAudio,
+    mode: "phonk",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
   }
