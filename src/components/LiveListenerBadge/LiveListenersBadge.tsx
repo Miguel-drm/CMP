@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { NumberTicker } from "@/components/magicui/number-ticker";
 import {
   getFirebaseDatabase,
@@ -14,6 +14,7 @@ import {
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { gsap } from "gsap";
 import { tracks as allTracks } from "@/data/tracks";
+const NotificationCard = lazy(async () => ({ default: (await import("@/components/LiveListenerBadge/NotificationCard")).default }));
 
 type NowPlayingTrack = { id: number; title: string; artist: string; coverUrl?: string; state?: string };
 type ListenerPresence = {
@@ -225,45 +226,43 @@ export default function LiveListenersBadge() {
     const badgeEl = badgeRef.current;
     if (!notifEl || !badgeEl) return;
 
-    // Compute target center in viewport
-    const badgeRect = badgeEl.getBoundingClientRect();
-    const notifRect = notifEl.getBoundingClientRect();
-    const startX = window.innerWidth - 16 - notifRect.width / 2;
-    const startY = 16 + notifRect.height / 2;
-    const targetX = badgeRect.left + badgeRect.width / 2;
-    const targetY = badgeRect.top + badgeRect.height / 2;
-    const deltaX = targetX - startX;
-    const deltaY = targetY - startY;
+    // Wait a frame so lazy content can render and layout is stable, then measure
+    requestAnimationFrame(() => {
+      const badgeRect = badgeEl.getBoundingClientRect();
+      const notifRect = notifEl.getBoundingClientRect();
+      const startX = window.innerWidth - 16 - notifRect.width / 2;
+      const startY = 16 + notifRect.height / 2;
+      const targetX = badgeRect.left + badgeRect.width / 2;
+      const targetY = badgeRect.top + badgeRect.height / 2;
+      const deltaX = targetX - startX;
+      const deltaY = targetY - startY;
 
-    gsap.set(notifEl, { willChange: "transform, opacity" });
+      gsap.set(notifEl, { willChange: "transform, opacity" });
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.fromTo(
-      notifEl,
-      { opacity: 0, scale: 0.92, x: 0, y: 0 },
-      { opacity: 1, scale: 1, duration: 0.3 }
-    )
-      // smooth travel towards the badge
-      .to(notifEl, { x: deltaX * 0.85, y: deltaY * 0.85, duration: 1.2, ease: "power3.out" })
-      // gentle overshoot
-      .to(notifEl, { x: deltaX * 1.03, y: deltaY * 1.03, duration: 0.25, ease: "sine.inOut" })
-      // settle and fade into the badge
-      .to(notifEl, { x: deltaX, y: deltaY, scale: 0.9, opacity: 0, duration: 0.45, ease: "power1.inOut" }, "-=0.05")
-      .add(() => {
-        // Subtle pulse on badge
-        gsap.fromTo(
-          badgeEl,
-          { boxShadow: "0 0 0px rgba(16,185,129,0.0)", scale: 1 },
-          { boxShadow: "0 0 18px rgba(16,185,129,0.45)", scale: 1.035, duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }
-        );
-      })
-      .add(() => {
-        gsap.set(notifEl, { clearProps: "willChange" });
-        setActiveNotification(null);
-        if (notifQueueRef.current.length > 0) {
-          setActiveNotification(notifQueueRef.current.shift() || null);
-        }
-      });
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo(
+        notifEl,
+        { opacity: 0, scale: 0.92, x: 0, y: 0 },
+        { opacity: 1, scale: 1, duration: 0.3 }
+      )
+        .to(notifEl, { x: deltaX * 0.85, y: deltaY * 0.85, duration: 1.2, ease: "power3.out" })
+        .to(notifEl, { x: deltaX * 1.03, y: deltaY * 1.03, duration: 0.25, ease: "sine.inOut" })
+        .to(notifEl, { x: deltaX, y: deltaY, scale: 0.9, opacity: 0, duration: 0.45, ease: "power1.inOut" }, "-=0.05")
+        .add(() => {
+          gsap.fromTo(
+            badgeEl,
+            { boxShadow: "0 0 0px rgba(16,185,129,0.0)", scale: 1 },
+            { boxShadow: "0 0 18px rgba(16,185,129,0.45)", scale: 1.035, duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }
+          );
+        })
+        .add(() => {
+          gsap.set(notifEl, { clearProps: "willChange" });
+          setActiveNotification(null);
+          if (notifQueueRef.current.length > 0) {
+            setActiveNotification(notifQueueRef.current.shift() || null);
+          }
+        });
+    });
   }, [activeNotification]);
 
   return (
@@ -310,27 +309,14 @@ export default function LiveListenersBadge() {
           ref={notifRef}
           className="fixed right-4 top-4 z-[100] pointer-events-none"
         >
-          <div className="rounded-xl border border-white/10 bg-background/95 shadow-xl px-3 py-2 text-foreground/90">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-md overflow-hidden bg-muted">
-                {(() => {
-                  const url = resolveCoverUrl(activeNotification);
-                  return url ? (
-                    <img src={url} alt={activeNotification.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full bg-gradient-to-br from-muted/60 to-muted" />
-                  );
-                })()}
-              </div>
-              <div className="min-w-[160px] max-w-[220px]">
-                <div className="text-xs text-foreground/70">
-                  🎧 {`Anonymous${activeNotification.sessionId.replace(/-/g, "").slice(-6).toUpperCase()}`} is listening to
-                </div>
-                <div className="text-sm font-medium text-foreground/90 leading-tight line-clamp-1">{activeNotification.title}</div>
-                <div className="text-xs text-foreground/70 leading-tight line-clamp-1">{activeNotification.artist}</div>
-              </div>
-            </div>
-          </div>
+          <Suspense fallback={<div className="rounded-xl border border-white/10 bg-background/95 shadow-xl px-3 py-2 h-14 w-[260px]" /> }>
+            <NotificationCard
+              sessionId={activeNotification.sessionId}
+              title={activeNotification.title}
+              artist={activeNotification.artist}
+              coverUrl={resolveCoverUrl(activeNotification)}
+            />
+          </Suspense>
         </div>
       )}
       <DrawerContent>
