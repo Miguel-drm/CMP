@@ -58,12 +58,14 @@ const MusicPlayer = () => {
 
   // Simplified repeat: false = repeat queue (default), true = repeat current song
   const [repeatCurrentSong, setRepeatCurrentSong] = useState(false);
-  const [isShuffled, setIsShuffled] = useState(false);
-  const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
-  const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
+  const [isShuffledByTab, setIsShuffledByTab] = useState<{ normal: boolean; phonk: boolean }>({ normal: false, phonk: false });
+  const [shuffledIndicesByTab, setShuffledIndicesByTab] = useState<{ normal: number[]; phonk: number[] }>({ normal: [], phonk: [] });
+  const [shuffleHistoryByTab, setShuffleHistoryByTab] = useState<{ normal: number[]; phonk: number[] }>({ normal: [], phonk: [] });
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isArtistDrawerOpen, setIsArtistDrawerOpen] = useState(false);
   const [artistCarouselApi, setArtistCarouselApi] = useState<CarouselApi | null>(null);
+  const [playlistCarouselApi, setPlaylistCarouselApi] = useState<CarouselApi | null>(null);
+  const [activePlaylistTab, setActivePlaylistTab] = useState<"normal" | "phonk">("normal");
 
   const broadcastNowPlaying = useCallback((state: "play" | "pause" | "ended") => {
     const t = tracks[currentTrackIndex];
@@ -258,21 +260,17 @@ const MusicPlayer = () => {
 
   // Enhanced shuffle logic with proper queue management
   const createShuffledQueue = useCallback((allowedIndices?: number[]) => {
-    type TrackWithMode = typeof tracks[number] & { mode?: string };
-    const currentMode = (tracks[currentTrackIndex] as TrackWithMode).mode;
     const base = allowedIndices
       ? [...allowedIndices]
       : Array.from({ length: tracks.length }, (_, i) => i);
-    const indices = typeof currentMode === "string"
-      ? base.filter((i) => (tracks[i] as TrackWithMode).mode === currentMode)
-      : base;
+    const indices = base;
     // Fisher-Yates shuffle
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
     return indices;
-  }, [currentTrackIndex]);
+  }, []);
 
   const getIndicesForArtist = useCallback((artist: string) => {
     const allIndices = Array.from({ length: tracks.length }, (_, i) => i);
@@ -281,10 +279,9 @@ const MusicPlayer = () => {
 
   const getFilteredIndices = useCallback(() => {
     type TrackWithMode = typeof tracks[number] & { mode?: string };
-    const currentMode = (tracks[currentTrackIndex] as TrackWithMode).mode;
-    const isPhonkMode = (currentMode as string) === "phonk";
-    // Do not apply artist filter when in phonk mode
-    const base = isPhonkMode
+    const currentMode: string | undefined = activePlaylistTab === "phonk" ? "phonk" : "normal";
+    // Do not apply artist filter when viewing phonk tab
+    const base = activePlaylistTab === "phonk"
       ? allIndices
       : (selectedArtist
         ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
@@ -293,44 +290,47 @@ const MusicPlayer = () => {
       return base.filter((i) => (tracks[i] as TrackWithMode).mode === currentMode);
     }
     return base;
-  }, [selectedArtist, allIndices, currentTrackIndex]);
+  }, [selectedArtist, allIndices, activePlaylistTab]);
 
   const getNextShuffledTrack = useCallback(() => {
+    const tab: "normal" | "phonk" = activePlaylistTab;
     const baseIndices = getFilteredIndices();
+    const shuffledIndices = shuffledIndicesByTab[tab];
     if (shuffledIndices.length === 0) {
       const newQueue = createShuffledQueue(baseIndices);
-      setShuffledIndices(newQueue);
+      setShuffledIndicesByTab((prev) => ({ ...prev, [tab]: newQueue }));
       return newQueue[0];
     }
 
     const currentIndexInQueue = shuffledIndices.indexOf(currentTrackIndex);
     if (currentIndexInQueue === -1 || currentIndexInQueue === shuffledIndices.length - 1) {
-      // Current track not in queue or at end - always repeat queue (create new shuffled queue)
       const newQueue = createShuffledQueue(baseIndices);
-      setShuffledIndices(newQueue);
+      setShuffledIndicesByTab((prev) => ({ ...prev, [tab]: newQueue }));
       return newQueue[0];
     }
 
     return shuffledIndices[currentIndexInQueue + 1];
-  }, [shuffledIndices, currentTrackIndex, createShuffledQueue, getFilteredIndices]);
+  }, [activePlaylistTab, shuffledIndicesByTab, currentTrackIndex, createShuffledQueue, getFilteredIndices]);
 
   const getPreviousShuffledTrack = useCallback(() => {
-    if (shuffleHistory.length > 0) {
-      const previousTrack = shuffleHistory[shuffleHistory.length - 1];
-      setShuffleHistory(prev => prev.slice(0, -1));
+    const tab: "normal" | "phonk" = activePlaylistTab;
+    const history = shuffleHistoryByTab[tab];
+    if (history.length > 0) {
+      const previousTrack = history[history.length - 1];
+      setShuffleHistoryByTab((prev) => ({ ...prev, [tab]: prev[tab].slice(0, -1) }));
       return previousTrack;
     }
 
-    // If no history, go to a random track
     const baseIndices = getFilteredIndices();
     const availableIndices = baseIndices.filter(i => i !== currentTrackIndex);
     return availableIndices[Math.floor(Math.random() * availableIndices.length)];
-  }, [shuffleHistory, currentTrackIndex, getFilteredIndices]);
+  }, [activePlaylistTab, shuffleHistoryByTab, currentTrackIndex, getFilteredIndices]);
 
   const playTrackAtIndex = useCallback((index: number) => {
     // Add current track to shuffle history if shuffled
-    if (isShuffled && currentTrackIndex !== index) {
-      setShuffleHistory(prev => [...prev, currentTrackIndex]);
+    const tab: "normal" | "phonk" = activePlaylistTab;
+    if (isShuffledByTab[tab] && currentTrackIndex !== index) {
+      setShuffleHistoryByTab((prev) => ({ ...prev, [tab]: [...prev[tab], currentTrackIndex] }));
     }
 
     // Only animate if track is actually changing
@@ -364,12 +364,12 @@ const MusicPlayer = () => {
         );
       }
     }
-  }, [isShuffled, currentTrackIndex, animateTrackChange, broadcastNowPlaying]);
+  }, [activePlaylistTab, isShuffledByTab, currentTrackIndex, animateTrackChange, broadcastNowPlaying]);
 
   const handlePrevious = useCallback(() => {
     let newIndex: number;
 
-    if (isShuffled) {
+    if (isShuffledByTab[activePlaylistTab]) {
       newIndex = getPreviousShuffledTrack();
     } else {
       const filtered = getFilteredIndices();
@@ -383,12 +383,12 @@ const MusicPlayer = () => {
     }
 
     playTrackAtIndex(newIndex);
-  }, [isShuffled, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, getFilteredIndices]);
+  }, [isShuffledByTab, activePlaylistTab, currentTrackIndex, getPreviousShuffledTrack, playTrackAtIndex, getFilteredIndices]);
 
   const handleNext = useCallback(() => {
     let newIndex: number;
 
-    if (isShuffled) {
+    if (isShuffledByTab[activePlaylistTab]) {
       newIndex = getNextShuffledTrack();
     } else {
       const filtered = getFilteredIndices();
@@ -402,7 +402,7 @@ const MusicPlayer = () => {
     }
 
     playTrackAtIndex(newIndex);
-  }, [isShuffled, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, getFilteredIndices]);
+  }, [isShuffledByTab, activePlaylistTab, currentTrackIndex, getNextShuffledTrack, playTrackAtIndex, getFilteredIndices]);
 
   const handleTrackEnd = useCallback(() => {
     // Repeat Current Song: replay current track
@@ -493,19 +493,24 @@ const MusicPlayer = () => {
   };
 
   const toggleShuffle = () => {
-    const newShuffleState = !isShuffled;
-    setIsShuffled(newShuffleState);
+    const tab: "normal" | "phonk" = activePlaylistTab;
+    const newShuffleState = !isShuffledByTab[tab];
+    setIsShuffledByTab((prev) => ({ ...prev, [tab]: newShuffleState }));
 
     if (newShuffleState) {
-      // Create initial shuffled queue
-      const base = getFilteredIndices();
+      type TrackWithMode = typeof tracks[number] & { mode?: string };
+      const baseAll = tab === "phonk"
+        ? allIndices
+        : (selectedArtist
+          ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+          : allIndices);
+      const base = baseAll.filter((i) => (tracks[i] as TrackWithMode).mode === tab);
       const newQueue = createShuffledQueue(base);
-      setShuffledIndices(newQueue);
-      setShuffleHistory([]);
+      setShuffledIndicesByTab((prev) => ({ ...prev, [tab]: newQueue }));
+      setShuffleHistoryByTab((prev) => ({ ...prev, [tab]: [] }));
     } else {
-      // Clear shuffle state
-      setShuffledIndices([]);
-      setShuffleHistory([]);
+      setShuffledIndicesByTab((prev) => ({ ...prev, [tab]: [] }));
+      setShuffleHistoryByTab((prev) => ({ ...prev, [tab]: [] }));
     }
   };
 
@@ -561,25 +566,65 @@ const MusicPlayer = () => {
     };
   }, [handleTrackEnd]);
 
+  // Keep active playlist tab in sync with the outer playlist carousel
+  useEffect(() => {
+    if (!playlistCarouselApi) return;
+    const onSelect = () => {
+      const index = playlistCarouselApi.selectedScrollSnap();
+      setActivePlaylistTab(index === 1 ? "phonk" : "normal");
+      // If shuffled for this tab, rebuild queue for that tab only to ensure correctness
+      const tab: "normal" | "phonk" = index === 1 ? "phonk" : "normal";
+      if (isShuffledByTab[tab]) {
+        type TrackWithMode = typeof tracks[number] & { mode?: string };
+        const baseAll = tab === "phonk"
+          ? allIndices
+          : (selectedArtist
+            ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+            : allIndices);
+        const base = baseAll.filter((i) => (tracks[i] as TrackWithMode).mode === tab);
+        const newQueue = createShuffledQueue(base);
+        setShuffledIndicesByTab((prev) => ({ ...prev, [tab]: newQueue }));
+        setShuffleHistoryByTab((prev) => ({ ...prev, [tab]: [] }));
+      }
+    };
+    onSelect();
+    playlistCarouselApi.on("select", onSelect);
+    playlistCarouselApi.on("reInit", onSelect);
+    return () => {
+      playlistCarouselApi.off("select", onSelect);
+    };
+  }, [playlistCarouselApi, isShuffledByTab, allIndices, selectedArtist, createShuffledQueue]);
+
   // Determine the order to display tracks in the playlist panel
   const baseFilteredIndices = useMemo(() => (
     selectedArtist
       ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
       : allIndices
   ), [selectedArtist, allIndices]);
-  const displayedIndices = useMemo(() => (
-    (isShuffled && shuffledIndices.length > 0)
-      ? shuffledIndices.filter((i) => baseFilteredIndices.includes(i))
-      : baseFilteredIndices
-  ), [isShuffled, shuffledIndices, baseFilteredIndices]);
+  const displayedIndices = useMemo(() => {
+    const tab: "normal" | "phonk" = "normal";
+    const shuffled = isShuffledByTab[tab];
+    const queue = shuffledIndicesByTab[tab];
+    if (shuffled && queue.length > 0 && activePlaylistTab === tab) {
+      return queue.filter((i) => baseFilteredIndices.includes(i));
+    }
+    return baseFilteredIndices;
+  }, [isShuffledByTab, shuffledIndicesByTab, baseFilteredIndices, activePlaylistTab]);
 
   type TrackWithMode = typeof tracks[number] & { mode?: string };
   const normalIndices = useMemo(() => (
     displayedIndices.filter((i) => (tracks[i] as TrackWithMode).mode !== "phonk")
   ), [displayedIndices]);
-  const phonkIndices = useMemo(() => (
-    allIndices.filter((i) => (tracks[i] as TrackWithMode).mode === "phonk")
-  ), [allIndices]);
+  const phonkIndices = useMemo(() => {
+    const base = allIndices.filter((i) => (tracks[i] as TrackWithMode).mode === "phonk");
+    const tab: "normal" | "phonk" = "phonk";
+    const shuffled = isShuffledByTab[tab];
+    const queue = shuffledIndicesByTab[tab];
+    if (shuffled && queue.length > 0 && activePlaylistTab === tab) {
+      return queue.filter((i) => base.includes(i));
+    }
+    return base;
+  }, [allIndices, isShuffledByTab, shuffledIndicesByTab, activePlaylistTab]);
 
   // Unique artist list for the drawer carousel and the selected index
   const artistItems = useMemo(() => (
@@ -692,7 +737,7 @@ const MusicPlayer = () => {
                   {/* Scrolling Text */}
                   <div
                     ref={scrollingTextRef}
-                    className="rounded-2xl w-full overflow-hidden my-5 "
+                    className="rounded-2xl w-full overflow-hidden my-5 py-3"
                   >
                     <ScrollVelocityContainer
                       className="w-full max-w-full text-[clamp(2rem,3vw,4rem)] font-bold font-spotify-display whitespace-nowrap tracking-tight"
@@ -723,17 +768,17 @@ const MusicPlayer = () => {
                   <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8 w-full mx-auto p-2">
                     {/* Shuffle */}
                     <button
-                      className={`group cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${isShuffled
+                      className={`group cursor-pointer p-2 sm:p-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${isShuffledByTab[activePlaylistTab]
                         ? "text-primary bg-primary/10 shadow-sm"
                         : "text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20"
                         }`}
                       onClick={toggleShuffle}
-                      aria-label={`Shuffle ${isShuffled ? "on" : "off"}`}
-                      title={isShuffled ? "Turn off shuffle" : "Turn on shuffle"}
+                      aria-label={`Shuffle ${isShuffledByTab[activePlaylistTab] ? "on" : "off"}`}
+                      title={isShuffledByTab[activePlaylistTab] ? "Turn off shuffle" : "Turn on shuffle"}
                     >
                       <Shuffle
                         className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 transition-transform duration-200 group-hover:scale-110"
-                        weight={isShuffled ? "fill" : "regular"}
+                        weight={isShuffledByTab[activePlaylistTab] ? "fill" : "regular"}
                       />
                     </button>
 
@@ -808,7 +853,7 @@ const MusicPlayer = () => {
           </div>
 
           {/* PLAYLIST */}
-          <Carousel>
+          <Carousel setApi={setPlaylistCarouselApi} opts={{ startIndex: activePlaylistTab === "phonk" ? 1 : 0 }}>
             <CarouselContent>
               <CarouselItem>
                 <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
@@ -839,18 +884,18 @@ const MusicPlayer = () => {
                                               // Toggling off the same artist filter → keep playback state
                                               if (selectedArtist === item.artist) {
                                                 setSelectedArtist(null);
-                                                setIsShuffled(false);
-                                                setShuffledIndices([]);
-                                                setShuffleHistory([]);
+                                                setIsShuffledByTab((prev) => ({ ...prev, normal: false }));
+                                                setShuffledIndicesByTab((prev) => ({ ...prev, normal: [] }));
+                                                setShuffleHistoryByTab((prev) => ({ ...prev, normal: [] }));
                                                 setIsArtistDrawerOpen(false);
                                                 return;
                                               }
 
                                               // Apply new artist filter
                                               setSelectedArtist(item.artist);
-                                              setIsShuffled(false);
-                                              setShuffledIndices([]);
-                                              setShuffleHistory([]);
+                                              setIsShuffledByTab((prev) => ({ ...prev, normal: false }));
+                                              setShuffledIndicesByTab((prev) => ({ ...prev, normal: [] }));
+                                              setShuffleHistoryByTab((prev) => ({ ...prev, normal: [] }));
 
                                               if (!isSameAsCurrent) {
                                                 // Switching to different artist than the one currently playing → pause/reset
@@ -900,9 +945,9 @@ const MusicPlayer = () => {
                           title="Clear artist filter"
                           onClick={() => {
                             setSelectedArtist(null);
-                            setIsShuffled(false);
-                            setShuffledIndices([]);
-                            setShuffleHistory([]);
+                            setIsShuffledByTab((prev) => ({ ...prev, normal: false }));
+                            setShuffledIndicesByTab((prev) => ({ ...prev, normal: [] }));
+                            setShuffleHistoryByTab((prev) => ({ ...prev, normal: [] }));
                           }}
                         >
                           <XCircle className="w-5 h-5" />
