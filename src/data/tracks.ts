@@ -18,6 +18,8 @@ import ContigoSiempre from "/Album/ContigoSiempre.png"
 import Andromeda from "/Album/Andromeda.png"
 import MontagemXonada from "/Album/MontagemXonada.png"
 import Apocalypse from "/Album/Apocalypse.png"
+import GataOnlyRemix from "/Album/GataOnlyRemix.png"
+import XRemix from "/Album/XRemix.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
@@ -40,6 +42,8 @@ import AndromedaAudio from "/Audio/Phonk/ANDROMEDA.mp3"
 import MontagemXonadaAudio from "/Audio/Phonk/MontagemXonada.mp3"
 import ApocalypseAudio from "/Audio/CigarettesAfterSex/Apocalypse.mp3"
 import NoSurprisesAudio from "/Audio/Radiohead/NoSurprises.mp3"
+import GataOnlyRemixAudio from "/Audio/Phonk/GataOnlyRemix.mp3"
+import XRemixAudio from "/Audio/Phonk/XRemix.mp3"
 
 
 // Artist Poster 
@@ -292,7 +296,31 @@ const baseTracks = [
     mode: "normal",
     videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
     showVideoSecond: 1 // Show video at 1:20
-  }
+  },
+  {
+    id: 21,
+    title: "Gata Only Remix",
+    artist: "FloyyMenor, Anitta, Ozuna",
+    artistPoster: "",
+    duration: 229,
+    coverUrl: GataOnlyRemix,
+    audioUrl: GataOnlyRemixAudio,
+    mode: "phonk",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
+  {
+    id: 22,
+    title: "X Remix",
+    artist: "Nicky Jam, J Balvin, Ozuna, Maluma",
+    artistPoster: "",
+    duration: 235,
+    coverUrl: XRemix,
+    audioUrl: XRemixAudio,
+    mode: "phonk",
+    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
+    showVideoSecond: 1 // Show video at 1:20
+  },
 ];
 
 function shuffleArray<T>(arr: T[]): T[] {

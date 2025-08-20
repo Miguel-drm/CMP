@@ -5,6 +5,7 @@ import {
   SkipForward,
   Shuffle,
   Repeat,
+  XCircle,
 } from "phosphor-react";
 import ProgressBar from "../ProgressBar/progressBar";
 // import Playlist from "../Playlist/playlist";
@@ -31,6 +32,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import PlaylistContainer from "@/components/Playlist/PlaylistContainer";
 
@@ -61,6 +63,7 @@ const MusicPlayer = () => {
   const [shuffleHistory, setShuffleHistory] = useState<number[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isArtistDrawerOpen, setIsArtistDrawerOpen] = useState(false);
+  const [artistCarouselApi, setArtistCarouselApi] = useState<CarouselApi | null>(null);
 
   const broadcastNowPlaying = useCallback((state: "play" | "pause" | "ended") => {
     const t = tracks[currentTrackIndex];
@@ -279,9 +282,13 @@ const MusicPlayer = () => {
   const getFilteredIndices = useCallback(() => {
     type TrackWithMode = typeof tracks[number] & { mode?: string };
     const currentMode = (tracks[currentTrackIndex] as TrackWithMode).mode;
-    const base = selectedArtist
-      ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
-      : allIndices;
+    const isPhonkMode = (currentMode as string) === "phonk";
+    // Do not apply artist filter when in phonk mode
+    const base = isPhonkMode
+      ? allIndices
+      : (selectedArtist
+        ? allIndices.filter((i) => tracks[i].artist.trim() === selectedArtist.trim())
+        : allIndices);
     if (typeof currentMode === "string") {
       return base.filter((i) => (tracks[i] as TrackWithMode).mode === currentMode);
     }
@@ -571,8 +578,32 @@ const MusicPlayer = () => {
     displayedIndices.filter((i) => (tracks[i] as TrackWithMode).mode !== "phonk")
   ), [displayedIndices]);
   const phonkIndices = useMemo(() => (
-    displayedIndices.filter((i) => (tracks[i] as TrackWithMode).mode === "phonk")
-  ), [displayedIndices]);
+    allIndices.filter((i) => (tracks[i] as TrackWithMode).mode === "phonk")
+  ), [allIndices]);
+
+  // Unique artist list for the drawer carousel and the selected index
+  const artistItems = useMemo(() => (
+    Array.from(
+      new Map(
+        tracks
+          .filter((t) => t.artistPoster)
+          .map((t) => [t.artist.trim(), { artist: t.artist.trim(), poster: t.artistPoster }])
+      ).values()
+    )
+  ), []);
+
+  const selectedArtistIndex = useMemo(() => {
+    if (!selectedArtist) return 0;
+    const idx = artistItems.findIndex((a) => a.artist === selectedArtist.trim());
+    return idx >= 0 ? idx : 0;
+  }, [selectedArtist, artistItems]);
+
+  // When opening the drawer, scroll the artist carousel to the selected artist
+  useEffect(() => {
+    if (isArtistDrawerOpen && artistCarouselApi) {
+      artistCarouselApi.scrollTo(selectedArtistIndex);
+    }
+  }, [isArtistDrawerOpen, artistCarouselApi, selectedArtistIndex]);
 
   // Preload next track's audio and image for smoother transitions
   useEffect(() => {
@@ -661,7 +692,7 @@ const MusicPlayer = () => {
                   {/* Scrolling Text */}
                   <div
                     ref={scrollingTextRef}
-                    className="rounded-2xl w-full overflow-hidden my-5 py-3"
+                    className="rounded-2xl w-full overflow-hidden my-5 "
                   >
                     <ScrollVelocityContainer
                       className="w-full max-w-full text-[clamp(2rem,3vw,4rem)] font-bold font-spotify-display whitespace-nowrap tracking-tight"
@@ -782,91 +813,102 @@ const MusicPlayer = () => {
               <CarouselItem>
                 <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6 mx-6">
-                    <Drawer open={isArtistDrawerOpen} onOpenChange={setIsArtistDrawerOpen}>
-                      <DrawerTrigger>
-                        <h3 className="text-xl font-bold cursor-pointer">{selectedArtist ? selectedArtist : "Select Artist"}</h3>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="w-full flex flex-col items-center p-5">
-                          <DrawerTitle className="mb-2">Select Artist</DrawerTitle>
-                          <DrawerDescription className="mb-4">Tap an artist poster to filter the playlist</DrawerDescription>
-                          <div className="w-full flex justify-center items-center">
-                            <Carousel className="w-full max-w-xs">
-                              <CarouselContent>
-                                {Array.from(
-                                  new Map(
-                                    tracks
-                                      .filter((t) => t.artistPoster)
-                                      .map((t) => [t.artist.trim(), { artist: t.artist.trim(), poster: t.artistPoster }])
-                                  ).values()
-                                ).map((item) => (
-                                  <CarouselItem key={item.artist}>
-                                    <div>
-                                      <Card>
-                                        <CardContent
-                                          className={`flex items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
-                                          onClick={() => {
-                                            const clickedArtist = item.artist.trim();
-                                            const currentArtist = tracks[currentTrackIndex]?.artist.trim();
-                                            const isSameAsCurrent = currentArtist === clickedArtist;
+                    <div className="flex items-center gap-3">
+                      <Drawer open={isArtistDrawerOpen} onOpenChange={setIsArtistDrawerOpen}>
+                        <DrawerTrigger>
+                          <h3 className="text-xl font-bold cursor-pointer">{selectedArtist ? selectedArtist : "Select Artist"}</h3>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="w-full flex flex-col items-center p-5">
+                            <DrawerTitle className="mb-2">Select Artist</DrawerTitle>
+                            <DrawerDescription className="mb-4">Tap an artist poster to filter the playlist</DrawerDescription>
+                            <div className="w-full flex justify-center items-center">
+                              <Carousel className="w-full max-w-xs" opts={{ startIndex: selectedArtistIndex }} setApi={setArtistCarouselApi}>
+                                <CarouselContent>
+                                  {artistItems.map((item) => (
+                                    <CarouselItem key={item.artist}>
+                                      <div>
+                                        <Card>
+                                          <CardContent
+                                            className={`flex items-center justify-center cursor-pointer ${selectedArtist === item.artist ? '' : ''}`}
+                                            onClick={() => {
+                                              const clickedArtist = item.artist.trim();
+                                              const currentArtist = tracks[currentTrackIndex]?.artist.trim();
+                                              const isSameAsCurrent = currentArtist === clickedArtist;
 
-                                            // Toggling off the same artist filter → keep playback state
-                                            if (selectedArtist === item.artist) {
-                                              setSelectedArtist(null);
+                                              // Toggling off the same artist filter → keep playback state
+                                              if (selectedArtist === item.artist) {
+                                                setSelectedArtist(null);
+                                                setIsShuffled(false);
+                                                setShuffledIndices([]);
+                                                setShuffleHistory([]);
+                                                setIsArtistDrawerOpen(false);
+                                                return;
+                                              }
+
+                                              // Apply new artist filter
+                                              setSelectedArtist(item.artist);
                                               setIsShuffled(false);
                                               setShuffledIndices([]);
                                               setShuffleHistory([]);
+
+                                              if (!isSameAsCurrent) {
+                                                // Switching to different artist than the one currently playing → pause/reset
+                                                const audio = audioRef.current;
+                                                const video = videoRef.current;
+                                                if (audio) {
+                                                  audio.pause();
+                                                  audio.currentTime = 0;
+                                                }
+                                                if (video) {
+                                                  video.pause();
+                                                  video.currentTime = 0;
+                                                }
+                                                if (showVideo) {
+                                                  hideBackgroundVideo();
+                                                }
+                                                setIsPlaying(false);
+                                                setCurrentTime(0);
+
+                                                const artistIndices = getIndicesForArtist(item.artist);
+                                                if (artistIndices.length > 0) {
+                                                  setCurrentTrackIndex(artistIndices[0]);
+                                                }
+                                              }
+
                                               setIsArtistDrawerOpen(false);
-                                              return;
-                                            }
-
-                                            // Apply new artist filter
-                                            setSelectedArtist(item.artist);
-                                            setIsShuffled(false);
-                                            setShuffledIndices([]);
-                                            setShuffleHistory([]);
-
-                                            if (!isSameAsCurrent) {
-                                              // Switching to different artist than the one currently playing → pause/reset
-                                              const audio = audioRef.current;
-                                              const video = videoRef.current;
-                                              if (audio) {
-                                                audio.pause();
-                                                audio.currentTime = 0;
-                                              }
-                                              if (video) {
-                                                video.pause();
-                                                video.currentTime = 0;
-                                              }
-                                              if (showVideo) {
-                                                hideBackgroundVideo();
-                                              }
-                                              setIsPlaying(false);
-                                              setCurrentTime(0);
-
-                                              const artistIndices = getIndicesForArtist(item.artist);
-                                              if (artistIndices.length > 0) {
-                                                setCurrentTrackIndex(artistIndices[0]);
-                                              }
-                                            }
-
-                                            setIsArtistDrawerOpen(false);
-                                          }}
-                                        >
-                                          <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-fill rounded-xl" loading="lazy" decoding="async" />
-                                        </CardContent>
-                                      </Card>
-                                    </div>
-                                  </CarouselItem>
-                                ))}
-                              </CarouselContent>
-                              <CarouselPrevious />
-                              <CarouselNext />
-                            </Carousel>
+                                            }}
+                                          >
+                                            <img src={item.poster as string} alt={item.artist} className="aspect-[2/3] object-fill rounded-xl" loading="lazy" decoding="async" />
+                                          </CardContent>
+                                        </Card>
+                                      </div>
+                                    </CarouselItem>
+                                  ))}
+                                </CarouselContent>
+                                <CarouselPrevious />
+                                <CarouselNext />
+                              </Carousel>
+                            </div>
                           </div>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
+                        </DrawerContent>
+                      </Drawer>
+                      {selectedArtist && (
+                        <button
+                          className="group cursor-pointer p-2 rounded-full text-muted-foreground hover:text-foreground bg-transparent hover:bg-muted/20 transition-all duration-200 hover:scale-105 active:scale-95"
+                          aria-label="Clear artist filter"
+                          title="Clear artist filter"
+                          onClick={() => {
+                            setSelectedArtist(null);
+                            setIsShuffled(false);
+                            setShuffledIndices([]);
+                            setShuffleHistory([]);
+                          }}
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                     <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" loading="lazy" decoding="async" />
                   </div>
                   <PlaylistContainer
