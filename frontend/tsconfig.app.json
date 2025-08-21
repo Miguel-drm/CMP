@@ -6,6 +6,8 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
