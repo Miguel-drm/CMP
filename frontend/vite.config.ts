@@ -18,4 +18,5 @@ export default defineConfig({
     port: 5173, // Default Vite port
     strictPort: false, // Allow fallback to other ports if 5173 is taken
   },
+  build: { chunkSizeWarningLimit: 1500 }
 });
