@@ -1,14 +1,10 @@
 [build]
   base = "frontend"
   publish = "dist"
-  command = "npm run build:netlify"
+  command = "npm ci --legacy-peer-deps --force --omit=optional && vite build"
 
 [build.environment]
   NODE_VERSION = "20.19.0"
-  NPM_CONFIG_PLATFORM = "linux"
-  NPM_CONFIG_ARCH = "x64"
-  NPM_CONFIG_TARGET_PLATFORM = "linux"
-  NPM_CONFIG_TARGET_ARCH = "x64"
 
 [[redirects]]
   from = "/*"
