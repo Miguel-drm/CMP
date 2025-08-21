@@ -10,6 +10,7 @@ interface WordRotateProps {
   duration?: number;
   motionProps?: MotionProps;
   className?: string;
+  onWordClick?: (word: string) => void;
 }
 
 export function WordRotate({
@@ -22,6 +23,7 @@ export function WordRotate({
     transition: { duration: 0.25, ease: "easeOut" },
   },
   className,
+  onWordClick,
 }: WordRotateProps) {
   const [index, setIndex] = useState(0);
 
@@ -34,12 +36,19 @@ export function WordRotate({
     return () => clearInterval(interval);
   }, [words, duration]);
 
+  const handleClick = () => {
+    if (onWordClick) {
+      onWordClick(words[index]);
+    }
+  };
+
   return (
     <div className="overflow-hidden py-2">
       <AnimatePresence mode="wait">
         <motion.h1
           key={words[index]}
           className={cn(className)}
+          onClick={handleClick}
           {...motionProps}
         >
           {words[index]}
