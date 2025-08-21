@@ -66,8 +66,6 @@ const baseTracks = [
     coverUrl: AboutYou,
     audioUrl: AboutYouAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/about-you.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 30 seconds
   },
   {
     id: 2,
@@ -78,8 +76,6 @@ const baseTracks = [
     coverUrl: Blue,
     audioUrl: BlueAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/blue.mp4", // Replace with actual video URL
-    showVideoSecond: 45 // Show video at 45 seconds
   },
   {
     id: 3,
@@ -90,8 +86,6 @@ const baseTracks = [
     coverUrl: Multo,
     audioUrl: MultoAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/multo.mp4", // Replace with actual video URL
-    showVideoSecond: 0 // Show video at 1 minute
   },
   {
     id: 4,
@@ -102,8 +96,6 @@ const baseTracks = [
     coverUrl: Sikulo,
     audioUrl: SikuloAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/sikulo.mp4", // Replace with actual video URL
-    showVideoSecond: 90 // Show video at 1:30
   },
   {
     id: 5,
@@ -114,8 +106,6 @@ const baseTracks = [
     coverUrl: IkawPatutunguhan,
     audioUrl: IkawPatutunguhanAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/ikaw-patutunguhan.mp4", // Replace with actual video URL
-    showVideoSecond: 120 // Show video at 2 minutes
   },
   {
     id: 6,
@@ -126,8 +116,6 @@ const baseTracks = [
     coverUrl: NewSlang,
     audioUrl: New_Slang,
     mode: "normal",
-    videoUrl: "https://example.com/videos/new-slang.mp4", // Replace with actual video URL
-    showVideoSecond: 75 // Show video at 1:15
   },
   {
     id: 7,
@@ -138,8 +126,6 @@ const baseTracks = [
     coverUrl: LetDown,
     audioUrl: Let_Down,
     mode: "normal",
-    videoUrl: "https://example.com/videos/let-down.mp4", // Replace with actual video URL
-    showVideoSecond: 218 // Show video at 3:35
   },
   {
     id: 8,
@@ -150,8 +136,6 @@ const baseTracks = [
     coverUrl: ilysb,
     audioUrl: ILYSB,
     mode: "normal",
-    videoUrl: "https://example.com/videos/ilysb.mp4", // Replace with actual video URL
-    showVideoSecond: 50 // Show video at 50 seconds
   },
   {
     id: 9,
@@ -162,8 +146,6 @@ const baseTracks = [
     coverUrl: BackToFriends,
     audioUrl: Back_To_Friends,
     mode: "normal",
-    videoUrl: "https://example.com/videos/back-to-friends.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 10,
@@ -174,8 +156,6 @@ const baseTracks = [
     coverUrl: Cry,
     audioUrl: CryAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 11,
@@ -186,8 +166,6 @@ const baseTracks = [
     coverUrl: MakeItToTheMorning,
     audioUrl: MakeItToTheMorningAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 12,
@@ -198,8 +176,6 @@ const baseTracks = [
     coverUrl: Dreamin,
     audioUrl: DreaminAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 13,
@@ -210,8 +186,6 @@ const baseTracks = [
     coverUrl: OneOfTheGirls,
     audioUrl: OneOfTheGirlsAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 14,
@@ -234,8 +208,6 @@ const baseTracks = [
     coverUrl: Wildflower,
     audioUrl: WildflowerAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 16,
@@ -246,8 +218,6 @@ const baseTracks = [
     coverUrl: ContigoSiempre,
     audioUrl: ContigoSiempreAudio,
     mode: "phonk",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 17,
@@ -258,8 +228,6 @@ const baseTracks = [
     coverUrl: Andromeda,
     audioUrl: AndromedaAudio,
     mode: "phonk",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 18,
@@ -270,8 +238,6 @@ const baseTracks = [
     coverUrl: MontagemXonada,
     audioUrl: MontagemXonadaAudio,
     mode: "phonk",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 19,
@@ -282,8 +248,6 @@ const baseTracks = [
     coverUrl: Apocalypse,
     audioUrl: ApocalypseAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 20,
@@ -294,8 +258,6 @@ const baseTracks = [
     coverUrl: LetDown,
     audioUrl: NoSurprisesAudio,
     mode: "normal",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 21,
@@ -306,8 +268,6 @@ const baseTracks = [
     coverUrl: GataOnlyRemix,
     audioUrl: GataOnlyRemixAudio,
     mode: "phonk",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
   {
     id: 22,
@@ -318,8 +278,6 @@ const baseTracks = [
     coverUrl: XRemix,
     audioUrl: XRemixAudio,
     mode: "phonk",
-    videoUrl: "https://example.com/videos/cry.mp4", // Replace with actual video URL
-    showVideoSecond: 1 // Show video at 1:20
   },
 ];
 

@@ -348,8 +348,7 @@ const MusicPlayer = () => {
     }
 
     setTimeout(() => {
-      audioRef.current?.play();
-      if (videoRef.current) videoRef.current.play();
+      audioRef.current?.play();   
     }, 0);
 
     // On small screens, scroll player into view and highlight it
@@ -408,7 +407,6 @@ const MusicPlayer = () => {
     // Repeat Current Song: replay current track
     if (repeatCurrentSong) {
       const audio = audioRef.current;
-      const video = videoRef.current;
 
       if (audio) {
         // Reset the audio position
@@ -424,10 +422,6 @@ const MusicPlayer = () => {
         setTimeout(() => {
           audio.play().then(() => {
             setIsPlaying(true);
-            if (video) {
-              video.currentTime = 0;
-              video.play().catch(console.error);
-            }
           }).catch((error) => {
             console.error("Error playing audio:", error);
             setIsPlaying(false);
@@ -443,15 +437,12 @@ const MusicPlayer = () => {
 
   const handlePlayPause = useCallback(() => {
     const audio = audioRef.current;
-    const video = videoRef.current;
     if (!audio) return;
     if (isPlaying) {
       audio.pause();
-      video?.pause();
       broadcastNowPlaying("pause");
     } else {
       audio.play();
-      video?.play();
       broadcastNowPlaying("play");
     }
     setIsPlaying(!isPlaying);
@@ -460,13 +451,6 @@ const MusicPlayer = () => {
   const handleSeek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
-      if (videoRef.current) videoRef.current.currentTime = time;
-
-      // Sync background video
-      if (backgroundVideoRef.current && showVideo) {
-        const videoTime = Math.max(0, time - currentTrack.showVideoSecond);
-        backgroundVideoRef.current.currentTime = videoTime;
-      }
 
       setCurrentTime(time);
     }
@@ -966,7 +950,7 @@ const MusicPlayer = () => {
               <CarouselItem>
                 <div className="relative rounded-3xl p-6 text-card-foreground transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6 mx-6">
-                    <h3 className="text-xl font-bold">Phonk</h3>
+                    <h3 className="text-xl font-bold cursor-pointer">Funk</h3>
                     <img src={Nailong} alt="" className="w-10 h-10 cursor-pointer" loading="lazy" decoding="async" />
                   </div>
                   <PlaylistContainer
