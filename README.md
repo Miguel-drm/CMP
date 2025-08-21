@@ -1,98 +1,136 @@
-# React + TypeScript + Vite
+# Caelven Music Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern music player application with React frontend and Express.js backend.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-## Firebase Realtime Database presence
-
-Environment variables (e.g. create `.env.local`):
+## Project Structure
 
 ```
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_DB_URL=https://your_project-default-rtdb.firebaseio.com
-VITE_FIREBASE_PROJECT_ID=your_project
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=000000000000
-VITE_FIREBASE_APP_ID=1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxx
+caelven/
+├── frontend/          # React + TypeScript + Vite application
+│   ├── src/          # Source code
+│   ├── public/       # Static assets
+│   ├── package.json  # Frontend dependencies
+│   └── ...
+├── backend/          # Express.js API server
+│   ├── src/          # Backend source code
+│   ├── package.json  # Backend dependencies
+│   └── ...
+└── package.json      # Root monorepo configuration
 ```
 
-Suggested Realtime Database rules for presence during development:
+## Quick Start
 
+### Install Dependencies
+
+```bash
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd frontend && npm install
+
+# Install backend dependencies
+cd backend && npm install
 ```
-{
-  "rules": {
-    "presence": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
+
+### Development
+
+```bash
+# Run both frontend and backend in development mode
+npm run dev
+
+# Or run them separately:
+npm run dev:frontend  # Frontend on http://localhost:5173
+npm run dev:backend   # Backend on http://localhost:3001
 ```
 
-The `ActiveListeners` component writes to `presence/online/{sessionId}` with `onDisconnect` cleanup and subscribes to the count live.
+### Production
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+```bash
+# Build both applications
+npm run build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start production servers
+npm start
 ```
+
+## Frontend (React + TypeScript + Vite)
+
+- **Port**: 5173
+- **Network Access**: http://192.168.1.52:5173
+- **Features**: Music player, playlist management, responsive design
+
+### Frontend Scripts
+
+```bash
+cd frontend
+npm run dev      # Development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
+```
+
+## Backend (Express.js)
+
+- **Port**: 3001
+- **Network Access**: http://192.168.1.52:3001
+- **Features**: REST API, music file management
+
+### Backend Scripts
+
+```bash
+cd backend
+npm run dev      # Development server with nodemon
+npm start        # Production server
+```
+
+### API Endpoints
+
+- `GET /` - API information
+- `GET /api/health` - Health check
+- `GET /api/tracks` - Get all tracks
+- `POST /api/tracks` - Upload new track
+
+## Network Access
+
+Both frontend and backend are configured to run on your network:
+
+- **Frontend**: http://192.168.1.52:5173
+- **Backend**: http://192.168.1.52:3001
+
+You can access the application from your phone or other devices on the same network.
+
+## Technologies
+
+### Frontend
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- GSAP (animations)
+- Three.js (3D graphics)
+
+### Backend
+- Express.js
+- Node.js
+- CORS enabled
+- Helmet (security)
+- Morgan (logging)
+
+## Development Workflow
+
+1. Start both servers: `npm run dev`
+2. Frontend runs on port 5173
+3. Backend runs on port 3001
+4. Access from network devices using your IP address
+5. Hot reload works for both frontend and backend
+
+## Environment Variables
+
+### Backend (.env)
+```
+PORT=3001
+NODE_ENV=development
+```
+
+Copy `backend/env.example` to `backend/.env` and modify as needed.
