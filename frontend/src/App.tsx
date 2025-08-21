@@ -70,7 +70,6 @@ function App() {
         <BackgroundBeams className="pointer-events-none opacity-50"/>
       </div>
     </>
-    
   );
 }
 
