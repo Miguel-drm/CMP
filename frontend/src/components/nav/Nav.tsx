@@ -28,11 +28,6 @@ const Nav = () => {
           <AnimatedThemeToggler className="text-4xl font-bold cursor-pointer" />
         </div>
       </div>
-      
-      <ModalForm 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </>
   )
 }

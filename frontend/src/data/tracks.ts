@@ -20,6 +20,7 @@ import MontagemXonada from "/Album/MontagemXonada.png"
 import Apocalypse from "/Album/Apocalypse.png"
 import GataOnlyRemix from "/Album/GataOnlyRemix.png"
 import XRemix from "/Album/XRemix.png"
+import Pandemonium from "/Album/Pandemonium.png"
 
 // MP3 Audio
 import AboutYouAudio from "/Audio/The1975/About You.mp3"
@@ -44,6 +45,8 @@ import ApocalypseAudio from "/Audio/CigarettesAfterSex/Apocalypse.mp3"
 import NoSurprisesAudio from "/Audio/Radiohead/NoSurprises.mp3"
 import GataOnlyRemixAudio from "/Audio/Phonk/GataOnlyRemix.mp3"
 import XRemixAudio from "/Audio/Phonk/XRemix.mp3"
+import PandemoniumAudio from "/Audio/NIKI/Pandemonium.mp3"
+import TakeAChanceWithMeAudio from "/Audio/NIKI/TakeAChanceWithMe.mp3"
 
 
 // Artist Poster 
@@ -54,6 +57,7 @@ import LANYPoster from "/Album/ArtistPoster/LANY.jpg"
 import YungKaiPoster from "/Album/ArtistPoster/YungKai.jpg"
 import CigarettesAfterSexPoster from "/Album/ArtistPoster/CigarettesAfterSex.jpg"
 import RadioheadPoster from "/Album/ArtistPoster/Radiohead.jpg"
+import NIKIPoster from "/Album/ArtistPoster/NIKI.jpg"
 
 
 const baseTracks = [
@@ -279,6 +283,27 @@ const baseTracks = [
     audioUrl: XRemixAudio,
     mode: "phonk",
   },
+  {
+    id: 23,
+    title: "Pandemonium",
+    artist: "NIKI",
+    artistPoster: NIKIPoster,
+    duration: 227,
+    coverUrl: Pandemonium,
+    audioUrl: PandemoniumAudio,
+    mode: "normal",
+  },
+  {
+    id: 24,
+    title: "Take A Chance With Me",
+    artist: "NIKI",
+    artistPoster: NIKIPoster,
+    duration: 301,
+    coverUrl: NIKIPoster,
+    audioUrl: TakeAChanceWithMeAudio,
+    mode: "normal",
+  },
+   
 ];
 
 function shuffleArray<T>(arr: T[]): T[] {
